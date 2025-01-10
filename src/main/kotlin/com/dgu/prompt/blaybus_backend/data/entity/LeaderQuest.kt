@@ -13,7 +13,7 @@ data class LeaderQuest(
 
     @ManyToOne
     @JoinColumn(name = "department_id", nullable = false)
-    val department: Department, // Foreign key reference to `department` table
+    val departments: Departments, // Foreign key reference to `department` table
 
     @Column(name = "quest_title", nullable = false)
     val questTitle: String,

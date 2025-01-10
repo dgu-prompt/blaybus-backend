@@ -11,5 +11,5 @@ data class JobGroup(
 
     @ManyToOne
     @JoinColumn(name = "department_id", nullable = false)
-    val department: Department // Foreign key reference to `department`
+    val departments: Departments // Foreign key reference to `department`
 )
