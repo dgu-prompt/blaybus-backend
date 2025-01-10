@@ -7,7 +7,7 @@ import java.util.Date
 @Entity
 // @NoArgsConstructor lombok 추가 고민,,
 @Table(name = "users")
-data class User(
+data class Users(
     @Id
     @Column(name = "employee_number")
     val employeeNumber: Int,

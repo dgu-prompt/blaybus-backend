@@ -12,7 +12,7 @@ data class Notification(
 
     @ManyToOne
     @JoinColumn(name = "employee_number", nullable = false)
-    val user: User, // Foreign key reference to `users` table
+    val users: Users, // Foreign key reference to `users` table
 
     @Column(name = "content", nullable = false)
     val content: String,
