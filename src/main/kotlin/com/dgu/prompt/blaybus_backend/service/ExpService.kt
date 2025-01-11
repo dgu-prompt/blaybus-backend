@@ -14,8 +14,8 @@ class ExpService(
     private val levelRepository: LevelRepository,
     private val usersRepository: UsersRepository
 ) {
-    fun getUserExpSummary(userId: Int): ExpSummaryResponse {
-        val allExps = expRepository.findAllByEmployeeNumber(userId)
+    fun getUserExpSummary(employeeNumber: Int): ExpSummaryResponse {
+        val allExps = expRepository.findAllByEmployeeNumber(employeeNumber)
         val currentYear = 2024 // 현재 연도 고정
 
         // 1. 작년까지의 누적 경험치 계산
@@ -32,11 +32,11 @@ class ExpService(
         val totalExp = prevYearExp + yearlyExp
 
         // 4. 현재 레벨과 다음 레벨 정보 계산
-        val (recentLv, nextLv, requiredExp) = calculateLevelsAndRequiredExp(userId, totalExp)
+        val (recentLv, nextLv, requiredExp) = calculateLevelsAndRequiredExp(employeeNumber, totalExp)
 
         // 5. 결과 반환
         return ExpSummaryResponse(
-            employeeNumber = userId.toString(),
+            employeeNumber = employeeNumber,
             prevYearExp = prevYearExp,
             totalExp = totalExp,
             yearlyExp = yearlyExp,
@@ -46,9 +46,9 @@ class ExpService(
         )
     }
 
-    private fun calculateLevelsAndRequiredExp(userId: Int, totalExp: Int): Triple<String, String, Int> {
+    private fun calculateLevelsAndRequiredExp(employeeNumber: Int, totalExp: Int): Triple<String, String, Int> {
         // 유저의 현재 레벨 필드값에서 앞글자 추출 (예: F, B)
-        val userLevelGroup = getUserLevelGroup(userId) // 유저의 레벨 앞글자(F, B 등)
+        val userLevelGroup = getUserLevelGroup(employeeNumber) // 유저의 레벨 앞글자(F, B 등)
 
         // 동일 그룹의 레벨 데이터 필터링
         val levels = levelRepository.findAll()
@@ -76,10 +76,10 @@ class ExpService(
         return Triple(recentLv, nextLv, requiredExp)
     }
 
-    private fun getUserLevelGroup(userId: Int): String {
+    private fun getUserLevelGroup(employeeNumber: Int): String {
         // 1. 유저 정보에서 현재 레벨 ID를 가져옴 (예: F2-I, B1 등)
-        val userLevelId = usersRepository.findUserLevelByEmployeeNumber(userId)
-            ?: throw IllegalArgumentException("User with ID $userId not found")
+        val userLevelId = usersRepository.findUserLevelByEmployeeNumber(employeeNumber)
+            ?: throw IllegalArgumentException("User with ID $employeeNumber not found")
 
         // 2. 레벨 ID의 첫 글자 추출 (예: F2-I -> F)
         return userLevelId.substringBefore("-").substring(0, 1)

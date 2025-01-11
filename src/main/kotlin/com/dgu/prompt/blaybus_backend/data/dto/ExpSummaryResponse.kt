@@ -1,7 +1,7 @@
 package com.dgu.prompt.blaybus_backend.data.dto
 
 data class ExpSummaryResponse(
-    val employeeNumber: String,
+    val employeeNumber: Int,
     val prevYearExp: Int,
     val totalExp: Int,
     val yearlyExp: Int,

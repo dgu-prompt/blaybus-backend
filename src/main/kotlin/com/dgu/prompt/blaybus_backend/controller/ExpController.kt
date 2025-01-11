@@ -10,13 +10,13 @@ import org.springframework.web.bind.annotation.*
 class ExpController(
     private val expService: ExpService
 ) {
-    @GetMapping("/summary/{userId}")
+    @GetMapping("/summary/{employeeNumber}")
     fun getExpSummary(
-        @PathVariable userId: Int,
+        @PathVariable employeeNumber: Int,
         // @RequestHeader("Authorization") authToken: String
-    ): ResponseEntity<ExpSummaryResponse> {
+    ): ResponseEntity<ExpSummaryResponse> { 
         // Authorization 검증 로직 추가 가능
-        val summary = expService.getUserExpSummary(userId)
+        val summary = expService.getUserExpSummary(employeeNumber)
         return ResponseEntity.ok(summary)
     }
 }
