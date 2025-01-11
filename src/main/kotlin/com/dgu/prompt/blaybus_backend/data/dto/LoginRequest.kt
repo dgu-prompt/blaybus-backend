@@ -1,4 +1,6 @@
 package com.dgu.prompt.blaybus_backend.data.dto
 
-class LoginRequest {
-}
+data class LoginRequest(
+    val username: String,
+    val password: String
+)
