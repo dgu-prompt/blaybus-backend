@@ -38,3 +38,7 @@ out/
 
 ### Kotlin ###
 .kotlin
+
+### Sensitive Files ###
+# Exclude credentials file
+src/main/resources/credentials.json
