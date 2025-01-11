@@ -13,8 +13,7 @@ class CustomUserDetailsService(private val usersRepository: UsersRepository) : U
 
     // 회원 가입 시 비밀번호를 평문 그대로 저장
     fun saveUser(username: String, password: String) {
-        // Users 엔티티에 필요한 다른 필드를 기본값으로 설정하거나 null로 설정한 후 저장
-        val user = Users(username = username, password = password) // password 외의 값은 null이 될 수 있음
+        val user = Users(username = username, password = password)
         usersRepository.save(user)
     }
 
