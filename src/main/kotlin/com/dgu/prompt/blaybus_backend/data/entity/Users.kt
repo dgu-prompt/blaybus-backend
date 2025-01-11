@@ -42,4 +42,20 @@ data class Users(
 
     @Column(name = "updated_at", nullable = false)
     val updatedAt: LocalDateTime
-)
+) {
+
+    // 회원가입 시 사용할 생성자 (username과 password만 전달)
+    constructor(username: String, password: String) : this(
+        employeeNumber = 0,  // 기본값 설정
+        levelId = "",        // 기본값 설정
+        jobGroupId = 0,      // 기본값 설정
+        departmentId = "",   // 기본값 설정
+        employeeName = "",   // 기본값 설정
+        username = username, // 전달된 값
+        password = password, // 전달된 값
+        joinDate = Date(),   // 기본값 설정
+        isAdmin = false,     // 기본값 설정
+        characterUrl = null, // 기본값 설정
+        updatedAt = LocalDateTime.now() // 기본값 설정
+    )
+}

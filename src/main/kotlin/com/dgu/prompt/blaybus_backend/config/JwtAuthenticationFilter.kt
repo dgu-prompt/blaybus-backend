@@ -22,6 +22,13 @@ class JwtAuthenticationFilter(
         response: HttpServletResponse,
         filterChain: FilterChain
     ) {
+        // 인증이 필요한 요청만 처리
+        if (request.requestURI.startsWith("/api/auth/")) {
+            // 로그인, 로그아웃과 같은 API는 인증을 요구하지 않으므로 필터를 통과시킴
+            filterChain.doFilter(request, response)
+            return
+        }
+
         val authHeader = request.getHeader("Authorization")
         val token = authHeader?.takeIf { it.startsWith("Bearer ") }?.substring(7)
 
