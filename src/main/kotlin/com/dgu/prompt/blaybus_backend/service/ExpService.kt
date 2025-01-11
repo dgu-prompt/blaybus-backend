@@ -5,12 +5,14 @@ import com.dgu.prompt.blaybus_backend.data.entity.Level
 import com.dgu.prompt.blaybus_backend.data.dto.ExpSummaryResponse
 import com.dgu.prompt.blaybus_backend.data.repository.ExpRepository
 import com.dgu.prompt.blaybus_backend.data.repository.LevelRepository
+import com.dgu.prompt.blaybus_backend.data.repository.UsersRepository
 import org.springframework.stereotype.Service
 
 @Service
 class ExpService(
     private val expRepository: ExpRepository,
-    private val levelRepository: LevelRepository
+    private val levelRepository: LevelRepository,
+    private val usersRepository: UsersRepository
 ) {
     fun getUserExpSummary(userId: Int): ExpSummaryResponse {
         val allExps = expRepository.findAllByEmployeeNumber(userId)
@@ -34,7 +36,7 @@ class ExpService(
 
         // 5. 결과 반환
         return ExpSummaryResponse(
-            userId = userId.toString(),
+            employeeNumber = userId.toString(),
             prevYearExp = prevYearExp,
             totalExp = totalExp,
             yearlyExp = yearlyExp,
@@ -76,7 +78,7 @@ class ExpService(
 
     private fun getUserLevelGroup(userId: Int): String {
         // 1. 유저 정보에서 현재 레벨 ID를 가져옴 (예: F2-I, B1 등)
-        val userLevelId = expRepository.findUserLevelByEmployeeNumber(userId)
+        val userLevelId = usersRepository.findUserLevelByEmployeeNumber(userId)
             ?: throw IllegalArgumentException("User with ID $userId not found")
 
         // 2. 레벨 ID의 첫 글자 추출 (예: F2-I -> F)
