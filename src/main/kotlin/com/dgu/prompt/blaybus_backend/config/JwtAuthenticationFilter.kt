@@ -45,8 +45,17 @@ class JwtAuthenticationFilter(
                     userDetails.authorities
                 )
                 SecurityContextHolder.getContext().authentication = authToken
+            } else {
+                // 인증 실패 시 403 응답
+                response.status = HttpServletResponse.SC_FORBIDDEN
+                return
             }
+        } else {
+            // 토큰이 없으면 401 응답
+            response.status = HttpServletResponse.SC_UNAUTHORIZED
+            return
         }
+
         // 인증을 거친 후, 요청을 처리하도록 필터 체인 진행
         filterChain.doFilter(request, response)
     }
