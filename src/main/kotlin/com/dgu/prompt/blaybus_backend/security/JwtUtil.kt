@@ -19,6 +19,11 @@ class JwtUtil(
         return extractClaim(token) { it.subject }
     }
 
+    // employeeNumber 추출
+    fun extractEmployeeNumber(token: String): Int? {
+        return extractClaim(token) { it["employeeNumber"] as? Int }
+    }
+
     // 특정 클레임 추출
     fun <T> extractClaim(token: String, claimsResolver: (Claims) -> T): T? {
         val claims = extractAllClaims(token)
@@ -33,19 +38,10 @@ class JwtUtil(
             .body
     }
 
-    // 토큰 검증
-    fun isTokenValid(token: String, username: String): Boolean {
-        return validateToken(token, username) && !isTokenInvalidated(token)
-    }
-
-    private fun isTokenExpired(token: String): Boolean {
-        val expiration = extractClaim(token) { it.expiration }
-        return expiration?.before(Date()) ?: true
-    }
-
-    // 토큰 생성
-    fun generateToken(username: String): String {
+    // 토큰 생성 (employeeNumber 포함)
+    fun generateToken(username: String, employeeNumber: Int): String {
         val claims = HashMap<String, Any>()
+        claims["employeeNumber"] = employeeNumber  // employeeNumber 클레임 추가
         return createToken(claims, username)
     }
 
@@ -59,9 +55,15 @@ class JwtUtil(
             .compact()
     }
 
+    // 토큰 검증
     fun validateToken(token: String, username: String): Boolean {
         val extractedUsername = extractUsername(token)
         return extractedUsername == username && !isTokenExpired(token)
+    }
+
+    private fun isTokenExpired(token: String): Boolean {
+        val expiration = extractClaim(token) { it.expiration }
+        return expiration?.before(Date()) ?: true
     }
 
     fun invalidateToken(token: String): Boolean {

@@ -42,6 +42,33 @@ class TestController(
         }
     }
 
+    @GetMapping("/employee-number")
+    fun getEmployeeNumberFromToken(
+        @RequestHeader("Authorization") authHeader: String // 헤더에서 토큰 받아오기
+    ): ResponseEntity<String> {
+        // Authorization 헤더에서 "Bearer "를 제외한 토큰 부분 추출
+        val token = authHeader.takeIf { it.startsWith("Bearer ") }?.substring(7)
+
+        return if (token != null) {
+            try {
+                // 토큰에서 employeeNumber 추출
+                val employeeNumber = jwtUtil.extractEmployeeNumber(token)
+
+                // employeeNumber가 null이 아니면 성공적으로 반환
+                if (employeeNumber != null) {
+                    ResponseEntity.ok("Employee Number: $employeeNumber")
+                } else {
+                    ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token or employee number not found")
+                }
+            } catch (e: Exception) {
+                // 예외 처리 (예: 토큰이 잘못된 경우)
+                ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token")
+            }
+        } else {
+            // Authorization 헤더가 없으면 오류 반환
+            ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Authorization header missing")
+        }
+    }
 
     @GetMapping("/test")
     fun testEndpoint(): String {

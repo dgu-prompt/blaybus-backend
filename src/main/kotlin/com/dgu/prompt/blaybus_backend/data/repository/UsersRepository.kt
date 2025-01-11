@@ -11,4 +11,5 @@ interface UsersRepository : JpaRepository<Users, Int> {
     fun findUserLevelByEmployeeNumber(@Param("employeeNumber") employeeNumber: Int): String?
 
     fun findByUsername(username: String): Users?
+    fun findByEmployeeNumber(employeeNumber: Int): List<Users?>
 }

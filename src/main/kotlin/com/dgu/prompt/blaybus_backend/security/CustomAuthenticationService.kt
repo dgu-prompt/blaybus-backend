@@ -11,7 +11,6 @@ class CustomAuthenticationService(
     fun authenticate(username: String, password: String): Boolean {
         val user = customUserDetailsService.loadUserByUsername(username)
 
-        // DB에 저장된 비밀번호와 입력된 비밀번호를 그대로 비교
-        return password == user.password // 평문 비밀번호 비교
+        return password == user.password
     }
 }

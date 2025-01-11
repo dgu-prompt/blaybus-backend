@@ -25,7 +25,7 @@ data class Notification(
     val createdAt: LocalDateTime? = null,
 
     @Column(name = "is_read", nullable = false)
-    val isRead: Boolean,
+    var isRead: Boolean, // isRead는 변경 가능한 값
 
     @Column(name = "updated_at", nullable = false)
     val updatedAt: LocalDateTime

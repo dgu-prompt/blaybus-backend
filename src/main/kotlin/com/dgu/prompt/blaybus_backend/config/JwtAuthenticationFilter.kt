@@ -1,5 +1,6 @@
 package com.dgu.prompt.blaybus_backend.config
 
+import com.dgu.prompt.blaybus_backend.security.CustomUserDetails
 import com.dgu.prompt.blaybus_backend.security.CustomUserDetailsService
 import com.dgu.prompt.blaybus_backend.security.JwtUtil
 import jakarta.servlet.FilterChain
@@ -34,29 +35,31 @@ class JwtAuthenticationFilter(
         val token = authHeader?.takeIf { it.startsWith("Bearer ") }?.substring(7)
 
         if (token != null) {
-            // 토큰에서 사용자 정보를 추출하여 검증
-            val username = jwtUtil.extractUsername(token)
+            val username: String = jwtUtil.extractUsername(token) ?: throw IllegalArgumentException("Username not found")
+            val employeeNumber = jwtUtil.extractEmployeeNumber(token)
 
-            if (username != null && jwtUtil.validateToken(token, username)) {
+            if (username != null && employeeNumber != null && jwtUtil.validateToken(token, username)) {
                 val userDetails = customUserDetailsService.loadUserByUsername(username)
                 val authToken = UsernamePasswordAuthenticationToken(
                     userDetails,
                     null,
                     userDetails.authorities
                 )
+
+                // CustomUserDetails에서 Users 객체를 가져옴
+                val user = (userDetails as CustomUserDetails).getUser()
+
+                // employeeNumber를 인증 정보에 추가
                 SecurityContextHolder.getContext().authentication = authToken
             } else {
-                // 인증 실패 시 403 응답
                 response.status = HttpServletResponse.SC_FORBIDDEN
                 return
             }
         } else {
-            // 토큰이 없으면 401 응답
             response.status = HttpServletResponse.SC_UNAUTHORIZED
             return
         }
 
-        // 인증을 거친 후, 요청을 처리하도록 필터 체인 진행
         filterChain.doFilter(request, response)
     }
 }
