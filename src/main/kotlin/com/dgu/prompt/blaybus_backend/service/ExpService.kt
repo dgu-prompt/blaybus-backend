@@ -29,8 +29,8 @@ class ExpService(
         // 3. 총 누적 경험치 계산
         val totalExp = prevYearExp + yearlyExp
 
-        // 4. 현재 레벨과 다음 레벨로 필요한 경험치 계산
-        val (currentLevel, requiredExp) = calculateCurrentLevelAndRequiredExp(totalExp)
+        // 4. 현재 레벨과 다음 레벨 정보 계산
+        val (recentLv, nextLv, requiredExp) = calculateLevelsAndRequiredExp(userId, totalExp)
 
         // 5. 결과 반환
         return ExpSummaryResponse(
@@ -38,30 +38,48 @@ class ExpService(
             prevYearExp = prevYearExp,
             totalExp = totalExp,
             yearlyExp = yearlyExp,
-            requiredExp = requiredExp
+            requiredExp = requiredExp,
+            recentLv = recentLv,
+            nextLv = nextLv
         )
     }
 
-    private fun calculateCurrentLevelAndRequiredExp(totalExp: Int): Pair<Level, Int> {
-        val levels = levelRepository.findAll().sortedBy { it.requiredExpDo }
+    private fun calculateLevelsAndRequiredExp(userId: Int, totalExp: Int): Triple<String, String, Int> {
+        // 유저의 현재 레벨 필드값에서 앞글자 추출 (예: F, B)
+        val userLevelGroup = getUserLevelGroup(userId) // 유저의 레벨 앞글자(F, B 등)
 
-        var currentLevel: Level? = null
-        var nextLevelRequiredExp: Int? = null
+        // 동일 그룹의 레벨 데이터 필터링
+        val levels = levelRepository.findAll()
+            .filter { it.levelId.startsWith(userLevelGroup) }
+            .sortedBy { it.requiredExpDo }
 
-        for (level in levels) {
-            val requiredExpDo = level.requiredExpDo ?: Long.MAX_VALUE // Null 처리
-            if (totalExp.toLong() < requiredExpDo) { // Long 타입끼리 비교
-                nextLevelRequiredExp = requiredExpDo.toInt() // Long -> Int 변환
+        var recentLv = "Unknown"
+        var nextLv = "Max Level"
+        var requiredExp = 0
+
+        for ((index, level) in levels.withIndex()) {
+            val levelExp = level.requiredExpDo ?: Long.MAX_VALUE
+            if (totalExp.toLong() < levelExp) {
+                recentLv = if (index > 0) levels[index - 1].levelId else "Unknown"
+                nextLv = level.levelId
+                requiredExp = levelExp.toInt()
                 break
             }
-            currentLevel = level
         }
 
-        if (currentLevel == null) {
-            currentLevel = levels.firstOrNull()
+        if (recentLv == "Unknown" && levels.isNotEmpty()) {
+            recentLv = levels.first().levelId
         }
 
-        val requiredExp = nextLevelRequiredExp?.let { it - totalExp } ?: 0
-        return Pair(currentLevel!!, requiredExp)
+        return Triple(recentLv, nextLv, requiredExp)
+    }
+
+    private fun getUserLevelGroup(userId: Int): String {
+        // 1. 유저 정보에서 현재 레벨 ID를 가져옴 (예: F2-I, B1 등)
+        val userLevelId = expRepository.findUserLevelByEmployeeNumber(userId)
+            ?: throw IllegalArgumentException("User with ID $userId not found")
+
+        // 2. 레벨 ID의 첫 글자 추출 (예: F2-I -> F)
+        return userLevelId.substringBefore("-").substring(0, 1)
     }
 }
