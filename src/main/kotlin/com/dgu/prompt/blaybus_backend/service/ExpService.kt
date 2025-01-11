@@ -1,6 +1,6 @@
 package com.dgu.prompt.blaybus_backend.service
 
-import com.dgu.prompt.blaybus_backend.data.data.entity.Level
+import com.dgu.prompt.blaybus_backend.data.entity.Level
 import com.dgu.prompt.blaybus_backend.data.dto.ExpSummaryResponse
 import com.dgu.prompt.blaybus_backend.data.repository.ExpRepository
 import com.dgu.prompt.blaybus_backend.data.repository.LevelRepository
