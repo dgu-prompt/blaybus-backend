@@ -24,15 +24,17 @@ class JwtAuthenticationFilter(
     ) {
         // 인증이 필요한 요청만 처리
         if (request.requestURI.startsWith("/api/auth/")) {
-            // 로그인, 로그아웃과 같은 API는 인증을 요구하지 않으므로 필터를 통과시킴
+            // 로그인, 로그아웃 API는 인증을 요구하지 않으므로 필터를 통과시킴
             filterChain.doFilter(request, response)
             return
         }
 
+        // Authorization 헤더에서 Bearer 토큰을 가져옴
         val authHeader = request.getHeader("Authorization")
         val token = authHeader?.takeIf { it.startsWith("Bearer ") }?.substring(7)
 
         if (token != null) {
+            // 토큰에서 사용자 정보를 추출하여 검증
             val username = jwtUtil.extractUsername(token)
 
             if (username != null && jwtUtil.validateToken(token, username)) {
@@ -45,6 +47,7 @@ class JwtAuthenticationFilter(
                 SecurityContextHolder.getContext().authentication = authToken
             }
         }
+        // 인증을 거친 후, 요청을 처리하도록 필터 체인 진행
         filterChain.doFilter(request, response)
     }
 }
