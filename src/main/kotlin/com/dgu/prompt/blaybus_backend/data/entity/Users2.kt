@@ -1,12 +1,12 @@
-package com.dgu.prompt.blaybus_backend.data.entity;
+package com.dgu.prompt.blaybus_backend.data.entity
 
 import jakarta.persistence.*
 import java.time.LocalDateTime
-import java.util.Date
+import java.util.*
 
 @Entity
-@Table(name = "users")
-data class Users(
+@Table(name = "users2")
+data class Users2(
     @Id
     @Column(name = "employee_number")
     val employeeNumber: Int,
@@ -41,20 +41,4 @@ data class Users(
 
     @Column(name = "updated_at", nullable = false)
     val updatedAt: LocalDateTime
-) {
-
-    // 회원가입 시 사용할 생성자 (username과 password만 전달)
-    constructor(username: String, password: String) : this(
-        employeeNumber = 0,  // 기본값 설정
-        levelId = "",        // 기본값 설정
-        jobGroupId = 0,      // 기본값 설정
-        departmentId = "",   // 기본값 설정
-        employeeName = "",   // 기본값 설정
-        username = username, // 전달된 값
-        password = password, // 전달된 값
-        joinDate = Date(),   // 기본값 설정
-        isAdmin = false,     // 기본값 설정
-        characterUrl = null, // 기본값 설정
-        updatedAt = LocalDateTime.now() // 기본값 설정
-    )
-}
+)

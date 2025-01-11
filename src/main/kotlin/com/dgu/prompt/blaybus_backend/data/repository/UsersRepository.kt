@@ -7,5 +7,8 @@ import org.springframework.data.repository.query.Param
 
 interface UsersRepository : JpaRepository<Users, Int> {
     @Query("SELECT u.levelId FROM Users u WHERE u.employeeNumber = :employeeNumber")
+
     fun findUserLevelByEmployeeNumber(@Param("employeeNumber") employeeNumber: Int): String?
+
+    fun findByUsername(username: String): Users?
 }

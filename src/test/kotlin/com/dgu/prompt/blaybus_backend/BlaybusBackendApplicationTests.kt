@@ -8,6 +8,6 @@ class BlaybusBackendApplicationTests {
 
 	@Test
 	fun contextLoads() {
+		// Context 로드 테스트
 	}
-
 }
