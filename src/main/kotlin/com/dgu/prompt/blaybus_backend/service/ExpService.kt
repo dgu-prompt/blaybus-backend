@@ -15,16 +15,16 @@ class ExpService(
     fun getUserExpSummary(userId: Int): ExpSummaryResponse {
         val allExps = expRepository.findAllByEmployeeNumber(userId)
 
-        // 작년 누적 경험치 계산
+        // 작년까지의 누적 경험치 계산
         val lastYear = LocalDate.now().year - 1
         val prevYearExp = allExps
-            .filter { it.expDate.year < lastYear }
+            .filter { it.expDate < lastYear } // 연도로 비교
             .sumOf { it.expDo }
 
-        // 올해 누적 경험치 계산
+        // 올해의 누적 경험치 계산
         val thisYear = LocalDate.now().year
         val yearlyExp = allExps
-            .filter { it.expDate.year == thisYear }
+            .filter { it.expDate == thisYear } // 연도로 비교
             .sumOf { it.expDo }
 
         // 총 경험치 계산
@@ -43,10 +43,10 @@ class ExpService(
     }
 
     private fun calculateCurrentLevelAndRequiredExp(totalExp: Int): Pair<Level, Int> {
-        // 모든 레벨 정보를 경험치 순으로 정렬하여 가져옴
+        // 모든 레벨 정보를 필요 경험치 순으로 정렬
         val levels = levelRepository.findAll().sortedBy { it.requiredExpDo }
 
-        // 현재 레벨과 다음 레벨의 필요 경험치를 초기화
+        // 현재 레벨 및 다음 레벨의 필요 경험치 초기화
         var currentLevel: Level? = null
         var nextLevelRequiredExp: Int? = null
 
@@ -64,11 +64,7 @@ class ExpService(
         }
 
         // 다음 레벨까지 필요한 경험치 계산
-        val requiredExp = if (nextLevelRequiredExp != null) {
-            nextLevelRequiredExp - totalExp
-        } else {
-            0 // 최고 레벨인 경우 추가 경험치 필요 없음
-        }
+        val requiredExp = nextLevelRequiredExp?.let { it - totalExp } ?: 0 // 최고 레벨인 경우 0 반환
 
         return Pair(currentLevel!!, requiredExp)
     }
