@@ -7,8 +7,9 @@ import java.time.LocalDateTime
 @Table(name = "notification")
 data class Notification(
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // 자동 생성
     @Column(name = "notification_id")
-    val notificationId: Int,
+    val notificationId: Int = 0,
 
     @ManyToOne
     @JoinColumn(name = "employee_number", nullable = false)
