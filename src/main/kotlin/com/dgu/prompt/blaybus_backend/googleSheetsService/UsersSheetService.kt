@@ -11,7 +11,7 @@ import java.time.format.DateTimeFormatter
 import java.util.*
 
 @Service
-class UsersSheetsService(
+class UsersSheetService(
     private val sheets: Sheets,
     private val users2Repository: Users2Repository
 ) {
