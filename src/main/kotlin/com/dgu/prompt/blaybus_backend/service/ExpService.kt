@@ -6,35 +6,41 @@ import com.dgu.prompt.blaybus_backend.data.dto.ExpSummaryResponse
 import com.dgu.prompt.blaybus_backend.data.repository.ExpRepository
 import com.dgu.prompt.blaybus_backend.data.repository.LevelRepository
 import com.dgu.prompt.blaybus_backend.data.repository.UsersRepository
+import com.dgu.prompt.blaybus_backend.security.JwtUtil
 import org.springframework.stereotype.Service
 
 @Service
 class ExpService(
     private val expRepository: ExpRepository,
     private val levelRepository: LevelRepository,
-    private val usersRepository: UsersRepository
+    private val usersRepository: UsersRepository,
+    private val jwtUtil: JwtUtil // JwtUtil 추가
 ) {
-    fun getUserExpSummary(employeeNumber: Int): ExpSummaryResponse {
+    fun getUserExpSummary(authToken: String): ExpSummaryResponse {
+        // JWT에서 employeeNumber 추출
+        val employeeNumber = jwtUtil.extractEmployeeNumber(authToken)
+            ?: throw IllegalArgumentException("Invalid JWT token: employeeNumber not found")
+
         val allExps = expRepository.findAllByEmployeeNumber(employeeNumber)
-        val currentYear = 2024 // 현재 연도 고정
+        val currentYear = 2024
 
-        // 1. 작년까지의 누적 경험치 계산
+        // 작년까지의 누적 경험치 계산
         val prevYearExp = allExps
-            .filter { it.expYear <= (currentYear - 1) } // 2023년까지 포함
+            .filter { it.expYear <= (currentYear - 1) }
             .sumOf { it.expDo }
 
-        // 2. 올해의 누적 경험치 계산
+        // 올해의 누적 경험치 계산
         val yearlyExp = allExps
-            .filter { it.expYear == currentYear } // 2024년 데이터만 포함
+            .filter { it.expYear == currentYear }
             .sumOf { it.expDo }
 
-        // 3. 총 누적 경험치 계산
+        // 총 누적 경험치 계산
         val totalExp = prevYearExp + yearlyExp
 
-        // 4. 현재 레벨과 다음 레벨 정보 계산
+        // 현재 레벨과 다음 레벨 정보 계산
         val (recentLv, nextLv, requiredExp) = calculateLevelsAndRequiredExp(employeeNumber, totalExp)
 
-        // 5. 결과 반환
+        // 결과 반환
         return ExpSummaryResponse(
             employeeNumber = employeeNumber,
             prevYearExp = prevYearExp,
@@ -77,11 +83,11 @@ class ExpService(
     }
 
     private fun getUserLevelGroup(employeeNumber: Int): String {
-        // 1. 유저 정보에서 현재 레벨 ID를 가져옴 (예: F2-I, B1 등)
+        // 유저 정보에서 현재 레벨 ID를 가져옴 (예: F2-I, B1 등)
         val userLevelId = usersRepository.findUserLevelByEmployeeNumber(employeeNumber)
             ?: throw IllegalArgumentException("User with ID $employeeNumber not found")
 
-        // 2. 레벨 ID의 첫 글자 추출 (예: F2-I -> F)
+        // 레벨 ID의 첫 글자 추출 (예: F2-I -> F)
         return userLevelId.substringBefore("-").substring(0, 1)
     }
 }
