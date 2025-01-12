@@ -14,7 +14,7 @@ data class Post(
     @Column(name = "post_title", nullable = false)
     val postTitle: String,
 
-    @Column(name = "content", nullable = false)
+    @Column(name = "content")
     val content: String,
 
     @Column(name = "created_at", nullable = false)
