@@ -1,4 +1,4 @@
-package com.dgu.prompt.blaybus_backend.service
+package com.dgu.prompt.blaybus_backend.googleSheetsService
 
 import com.dgu.prompt.blaybus_backend.data.entity.Users2
 import com.dgu.prompt.blaybus_backend.data.repository.Users2Repository
@@ -11,7 +11,7 @@ import java.time.format.DateTimeFormatter
 import java.util.*
 
 @Service
-class GoogleSheetsService(
+class UsersSheetsService(
     private val sheets: Sheets,
     private val users2Repository: Users2Repository
 ) {
