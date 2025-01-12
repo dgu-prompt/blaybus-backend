@@ -21,6 +21,7 @@ class JobQuestService(
 ) {
 
     fun getJobQuests(employeeNumber: Int, frequency: String): List<JobQuestResponse> {
+        println("Received employeeNumber in service: $employeeNumber")
         val user = usersRepository.findUserByEmployeeNumber(employeeNumber)
             ?: throw IllegalArgumentException("User not found for employeeNumber: $employeeNumber")
 
@@ -30,22 +31,26 @@ class JobQuestService(
         } catch (e: IllegalArgumentException) {
             throw IllegalArgumentException("Invalid frequency type: $frequency. Must be 'WEEK' or 'MONTH'")
         }
+        println("employeeNumber passed to frequencyType: $employeeNumber")
     
         val currentPeriod = when (frequencyType) {
             FrequencyType.WEEK -> getCurrentWeekOfYear()
             FrequencyType.MONTH -> getCurrentMonthOfYear()
         }
+
     
         val jobQuests = jobQuestRepository.findByJobGroupIdAndDepartmentIdAndFrequencyType(
             jobGroupId = user.jobGroupId,
             departmentId = user.departmentId,
             frequencyType = frequencyType
         )
-    
+        println("employeeNumber passed to jobQuests: $employeeNumber")
+        
         return jobQuests.map { jobQuest ->
             val progresses = jobQuestProgressRepository.findByJobQuest_QuestId(
                 questId = jobQuest.questId
             ).map { progress ->
+                println("Progress fetched for questId ${jobQuest.questId}: $progress")
                 JobQuestProgressResponse(
                     questId = progress.jobQuest.questId,
                     status = progress.status.name,
