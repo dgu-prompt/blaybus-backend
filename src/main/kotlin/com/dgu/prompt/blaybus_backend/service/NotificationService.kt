@@ -1,13 +1,137 @@
 package com.dgu.prompt.blaybus_backend.service
 
+import com.dgu.prompt.blaybus_backend.data.dto.NotificationRequest
+import com.dgu.prompt.blaybus_backend.data.entity.FcmToken
+import com.dgu.prompt.blaybus_backend.data.entity.Notification
+import com.dgu.prompt.blaybus_backend.data.entity.NotificationType
+import com.dgu.prompt.blaybus_backend.data.repository.FcmTokenRepository
 import com.dgu.prompt.blaybus_backend.data.repository.NotificationRepository
+import com.dgu.prompt.blaybus_backend.data.repository.UsersRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.LocalDateTime
 
 @Service
 class NotificationService(
-    private val notificationRepository: NotificationRepository
+    private val fcmService: FCMService,
+    private val notificationRepository: NotificationRepository,
+    private val usersRepository: UsersRepository,
+    private val fcmTokenRepository: FcmTokenRepository
 ) {
+    fun saveFcmToken(employeeNumber: Int, fcmToken: String) {
+        val user = usersRepository.findById(employeeNumber)
+            .orElseThrow { IllegalArgumentException("User not found") }
+
+        val existingToken = fcmTokenRepository.findByUser(user)
+
+        if (existingToken != null) {
+            // 기존 토큰 업데이트
+            val updatedToken = existingToken.copy(fcmToken = fcmToken, createdAt = LocalDateTime.now())
+            fcmTokenRepository.save(updatedToken)
+        } else {
+            // 새 토큰 저장
+            val newToken = FcmToken(user = user, fcmToken = fcmToken)
+            fcmTokenRepository.save(newToken)
+        }
+    }
+
+    fun sendNotification(request: NotificationRequest) {
+        val user = usersRepository.findById(request.employeeNumber)
+            .orElseThrow { IllegalArgumentException("User not found") }
+
+        val fcmToken = fcmTokenRepository.findByUser(user)?.fcmToken
+            ?: throw IllegalArgumentException("FCM token not found for user")
+
+        val content = when (request.type) {
+            NotificationType.EXP -> "You gained ${request.points} experience points!"
+            NotificationType.POST -> "New post: ${request.postTitle}"
+            NotificationType.SUCCESS -> "You achieved your ${request.period} goal!"
+        }
+
+        // Create and save notification entity
+        val notification = Notification(
+            users = user,
+            content = content,
+            type = request.type,
+            createdAt = LocalDateTime.now(),
+            isRead = false,
+            updatedAt = LocalDateTime.now()
+        )
+        notificationRepository.save(notification)
+
+        // Send push notification via FCM
+        fcmService.sendNotification(
+            fcmToken = fcmToken,
+            title = request.title,
+            body = content
+        )
+    }
+/*
+    fun sendExperienceNotification(employeeNumber: Int, points: Int) {
+        val user = usersRepository.findById(employeeNumber)
+            .orElseThrow { IllegalArgumentException("User not found") }
+
+        val fcmToken = fcmTokenRepository.findByUser(user)?.fcmToken
+            ?: throw IllegalArgumentException("FCM token not found for user")
+
+        val content = "You have gained $points experience points!"
+        fcmService.sendNotification(fcmToken, "Experience Gained", content)
+
+        val notification = Notification(
+            notificationId = 0, // Auto-generated
+            users = user,
+            content = content,
+            type = NotificationType.EXP,
+            createdAt = LocalDateTime.now(),
+            isRead = false,
+            updatedAt = LocalDateTime.now()
+        )
+        notificationRepository.save(notification)
+    }
+
+    fun sendPostNotification(employeeNumber: Int, postTitle: String) {
+        val user = usersRepository.findById(employeeNumber)
+            .orElseThrow { IllegalArgumentException("User not found") }
+
+        val fcmToken = fcmTokenRepository.findByUser(user)?.fcmToken
+            ?: throw IllegalArgumentException("FCM token not found for user")
+
+        val content = "A new post titled '$postTitle' has been published."
+        fcmService.sendNotification(fcmToken, "New Post", content)
+
+        val notification = Notification(
+            notificationId = 0,
+            users = user,
+            content = content,
+            type = NotificationType.POST,
+            createdAt = LocalDateTime.now(),
+            isRead = false,
+            updatedAt = LocalDateTime.now()
+        )
+        notificationRepository.save(notification)
+    }
+
+    fun sendAchievementNotification(employeeNumber: Int, period: String) {
+        val user = usersRepository.findById(employeeNumber)
+            .orElseThrow { IllegalArgumentException("User not found") }
+
+        val fcmToken = fcmTokenRepository.findByUser(user)?.fcmToken
+            ?: throw IllegalArgumentException("FCM token not found for user")
+
+        val content = "Congratulations on your $period achievements!"
+        fcmService.sendNotification(fcmToken, "Achievement Unlocked", content)
+
+        val notification = Notification(
+            notificationId = 0,
+            users = user,
+            content = content,
+            type = NotificationType.SUCCESS,
+            createdAt = LocalDateTime.now(),
+            isRead = false,
+            updatedAt = LocalDateTime.now()
+        )
+        notificationRepository.save(notification)
+    }*/
 
     // 알림 목록 조회
     fun getNotificationsByEmployeeNumber(employeeNumber: Int): List<Map<String, Any>> { // Any?로 nullable 처리
@@ -44,7 +168,7 @@ class NotificationService(
     fun markAllNotificationsAsRead(employeeNumber: Int): Map<String, Any> {
         val notifications = notificationRepository.findByUsers_EmployeeNumberAndIsReadFalse(employeeNumber)
         notifications.forEach { notification ->
-            notification.isRead = true // var로 변경 후 값 수정 가능
+            notification.isRead = true
         }
         notificationRepository.saveAll(notifications)
 

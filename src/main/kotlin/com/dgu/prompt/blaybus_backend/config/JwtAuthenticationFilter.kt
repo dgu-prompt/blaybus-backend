@@ -25,7 +25,7 @@ class JwtAuthenticationFilter(
     ) {
         // 인증이 필요한 요청만 처리
         if (request.requestURI.startsWith("/api/auth/")) {
-            // 로그인, 로그아웃 API는 인증을 요구하지 않으므로 필터를 통과시킴
+            // 로그인 API는 인증을 요구하지 않으므로 필터를 통과시킴
             filterChain.doFilter(request, response)
             return
         }

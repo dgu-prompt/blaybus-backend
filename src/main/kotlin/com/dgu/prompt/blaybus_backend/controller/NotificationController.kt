@@ -1,5 +1,6 @@
 package com.dgu.prompt.blaybus_backend.controller
 
+import com.dgu.prompt.blaybus_backend.data.dto.NotificationRequest
 import com.dgu.prompt.blaybus_backend.security.JwtUtil
 import com.dgu.prompt.blaybus_backend.service.NotificationService
 import org.springframework.http.HttpStatus
@@ -14,6 +15,64 @@ class NotificationController(
     private val jwtUtil: JwtUtil,
     private val notificationService: NotificationService
 ) {
+    @PostMapping("/fcm/token")
+    fun saveFcmToken(
+        @RequestHeader("Authorization") token: String,
+        @RequestParam fcmToken: String
+    ): ResponseEntity<String> {
+        val employeeNumber = jwtUtil.extractEmployeeNumber(token.replace("Bearer ", ""))
+            ?: throw IllegalArgumentException("Invalid token")
+        notificationService.saveFcmToken(employeeNumber, fcmToken)
+        return ResponseEntity.ok("FCM Token saved successfully")
+    }
+
+    @PostMapping("/notify")
+    fun sendNotification(
+        @RequestHeader("Authorization") token: String,
+        @RequestBody request: NotificationRequest
+    ): ResponseEntity<String> {
+        val employeeNumber = jwtUtil.extractEmployeeNumber(token.replace("Bearer ", ""))
+            ?: throw IllegalArgumentException("Invalid token")
+        // Pass the extracted `employeeNumber` to the request object
+        val updatedRequest = request.copy(employeeNumber = employeeNumber)
+        notificationService.sendNotification(updatedRequest)
+        return ResponseEntity.ok("Experience notification sent successfully")
+    }/*
+
+    @PostMapping("/experience")
+    fun sendExperienceNotification(
+        @RequestHeader("Authorization") token: String,
+        @RequestBody request: NotificationRequest
+    ): ResponseEntity<String> {
+        val employeeNumber = jwtUtil.extractEmployeeNumber(token.replace("Bearer ", ""))
+            ?: throw IllegalArgumentException("Invalid token")
+        notificationService.sendExperienceNotification(employeeNumber, request.points)
+        return ResponseEntity.ok("Experience notification sent successfully")
+    }
+
+    @PostMapping("/post")
+    fun sendPostNotification(
+        @RequestHeader("Authorization") token: String,
+        @RequestBody request: NotificationRequest
+    ): ResponseEntity<String> {
+        val employeeNumber = jwtUtil.extractEmployeeNumber(token.replace("Bearer ", ""))
+            ?: throw IllegalArgumentException("Invalid token")
+        notificationService.sendPostNotification(employeeNumber, request.postTitle)
+        return ResponseEntity.ok("Post notification sent successfully")
+    }
+
+    @PostMapping("/achievement")
+    fun sendAchievementNotification(
+        @RequestHeader("Authorization") token: String,
+        @RequestBody request: NotificationRequest
+    ): ResponseEntity<String> {
+        val employeeNumber = jwtUtil.extractEmployeeNumber(token.replace("Bearer ", ""))
+            ?: throw IllegalArgumentException("Invalid token")
+        notificationService.sendAchievementNotification(employeeNumber, request.period)
+        return ResponseEntity.ok("Achievement notification sent successfully")
+    }*/
+
+    // 알림 목록 조회
     @GetMapping
     fun getNotifications(@RequestHeader("Authorization") token: String): ResponseEntity<*> {
         val jwtToken = token.replace("Bearer ", "")
@@ -31,18 +90,20 @@ class NotificationController(
     // 특정 알림 읽음 처리
     @PutMapping("/{notificationId}/read")
     fun markNotificationAsRead(
-        @PathVariable notificationId: Int,
-        authentication: Authentication
+        @RequestHeader("Authorization") token: String,
+        @PathVariable notificationId: Int
     ): ResponseEntity<Map<String, Any>> {
-        val employeeNumber = authentication.principal as Int
+        val employeeNumber = jwtUtil.extractEmployeeNumber(token.replace("Bearer ", ""))
+            ?: throw IllegalArgumentException("Invalid token")
         val result = notificationService.markNotificationAsRead(notificationId)
         return ResponseEntity.ok(result)
     }
 
     // 모든 알림 읽음 처리
     @PutMapping("/read-all")
-    fun markAllNotificationsAsRead(authentication: Authentication): ResponseEntity<Map<String, Any>> {
-        val employeeNumber = authentication.principal as Int
+    fun markAllNotificationsAsRead(@RequestHeader("Authorization") token: String): ResponseEntity<Map<String, Any>> {
+        val employeeNumber = jwtUtil.extractEmployeeNumber(token.replace("Bearer ", ""))
+            ?: throw IllegalArgumentException("Invalid token")
         val response = notificationService.markAllNotificationsAsRead(employeeNumber)
         return ResponseEntity.ok(response)
     }

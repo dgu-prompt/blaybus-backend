@@ -78,6 +78,8 @@ dependencies {
 	testImplementation("com.google.oauth-client:google-oauth-client:1.34.1")
 	testImplementation("com.google.auth:google-auth-library-oauth2-http:1.16.0")
 
+	// FCM
+	implementation ("com.google.firebase:firebase-admin:9.1.1")
 
 }
 
