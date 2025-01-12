@@ -20,12 +20,14 @@ data class JobQuestProgress(
     )
     val jobQuest: JobQuest, // Composite foreign key to `job_quest`
 
+    @ManyToOne
+    @JoinColumn(name = "employee_number", referencedColumnName = "employee_number", nullable = false)
+    val user: Users, // Foreign key reference to `Users`
+
+
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     val status: ProgressStatus = ProgressStatus.PENDING,
-
-    @Column(name = "quest_progress_date", nullable = false)
-    val questProgressDate: Date,
 
     @Column(name = "updated_at", nullable = false)
     val updatedAt: LocalDateTime,

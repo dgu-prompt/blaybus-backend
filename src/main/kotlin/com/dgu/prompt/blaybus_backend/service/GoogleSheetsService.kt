@@ -1,7 +1,7 @@
 package com.dgu.prompt.blaybus_backend.service
 
-import com.dgu.prompt.blaybus_backend.data.entity.Users
-import com.dgu.prompt.blaybus_backend.data.repository.UsersRepository
+import com.dgu.prompt.blaybus_backend.data.entity.Users2
+import com.dgu.prompt.blaybus_backend.data.repository.Users2Repository
 import com.google.api.services.sheets.v4.Sheets
 import org.springframework.stereotype.Service
 import java.time.LocalDate
@@ -13,19 +13,20 @@ import java.util.*
 @Service
 class GoogleSheetsService(
     private val sheets: Sheets,
-    private val usersRepository: UsersRepository
+    private val Users2Repository: Users2Repository
 ) {
-    private val SPREADSHEET_ID = "your-spreadsheet-id" // Google Sheets ID
-    private val RANGE = "Sheet1!A2:N" // 데이터 범위 (헤더 제외)
+    private val SPREADSHEET_ID = "GoogleSheets" // Google Sheets ID
+//    private val SPREADSHEET_ID = "1gNAIcvtjcarYJ-L9lbzno3pQqmGjdDoItNw9P324Q7c" // Google Sheets ID
+    private val RANGE = "참고. 구성원 정보!B9:N" // 데이터 범위 (헤더 제외)
 
     fun syncData() {
         val response = sheets.spreadsheets().values().get(SPREADSHEET_ID, RANGE).execute()
         val values = response.getValues()
 
         if (!values.isNullOrEmpty()) {
-            val users = values.mapNotNull { row ->
+            val Users2 = values.mapNotNull { row ->
                 try {
-                    Users(
+                    Users2(
                         employeeNumber = row[0].toString().toInt(),
                         employeeName = row[1].toString(),
                         joinDate = LocalDate.parse(row[2].toString(), DateTimeFormatter.ISO_LOCAL_DATE).atStartOfDay(ZoneId.systemDefault()).toInstant().let { Date.from(it) },
@@ -44,12 +45,12 @@ class GoogleSheetsService(
             }
 
             // 저장하기 전에 중복 제거 (중복된 employeeNumber를 기준으로 처리)
-            val existingUsers = usersRepository.findAllById(users.map { it.employeeNumber })
-            val newUsers = users.filter { user -> existingUsers.none { it.employeeNumber == user.employeeNumber } }
+            val existingUsers2 = Users2Repository.findAllById(Users2.map { it.employeeNumber })
+            val newUsers2 = Users2.filter { user -> existingUsers2.none { it.employeeNumber == user.employeeNumber } }
 
-            if (newUsers.isNotEmpty()) {
-                usersRepository.saveAll(newUsers)
-                println("새로운 사용자 ${newUsers.size}명을 저장했습니다.")
+            if (newUsers2.isNotEmpty()) {
+                Users2Repository.saveAll(newUsers2)
+                println("새로운 사용자 ${newUsers2.size}명을 저장했습니다.")
             } else {
                 println("저장할 새로운 사용자가 없습니다.")
             }

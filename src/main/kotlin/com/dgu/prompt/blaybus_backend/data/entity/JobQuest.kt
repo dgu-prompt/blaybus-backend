@@ -17,9 +17,6 @@ data class JobQuest(
     @Column(name = "department_id", nullable = false)
     val departmentId: String,
 
-    @Column(name = "quest_title", nullable = false)
-    val questTitle: String,
-
     @Column(name = "description")
     val description: String? = null,
 

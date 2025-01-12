@@ -43,3 +43,4 @@ out/
 # Exclude credentials file
 src/main/resources/credentials.json
 src/main/resources/firebase-service-account.json
+.env
