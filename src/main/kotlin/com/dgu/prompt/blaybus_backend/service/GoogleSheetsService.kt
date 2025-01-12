@@ -15,8 +15,9 @@ class GoogleSheetsService(
     private val sheets: Sheets,
     private val Users2Repository: Users2Repository
 ) {
-    private val SPREADSHEET_ID = "your-spreadsheet-id" // Google Sheets ID
-    private val RANGE = "Sheet1!A2:N" // 데이터 범위 (헤더 제외)
+    private val SPREADSHEET_ID = "GoogleSheets" // Google Sheets ID
+//    private val SPREADSHEET_ID = "1gNAIcvtjcarYJ-L9lbzno3pQqmGjdDoItNw9P324Q7c" // Google Sheets ID
+    private val RANGE = "참고. 구성원 정보!B9:N" // 데이터 범위 (헤더 제외)
 
     fun syncData() {
         val response = sheets.spreadsheets().values().get(SPREADSHEET_ID, RANGE).execute()
