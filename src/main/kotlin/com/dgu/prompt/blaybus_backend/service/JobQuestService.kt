@@ -5,47 +5,74 @@ import com.dgu.prompt.blaybus_backend.data.dto.JobQuestResponse
 import com.dgu.prompt.blaybus_backend.data.entity.FrequencyType
 import com.dgu.prompt.blaybus_backend.data.repository.JobQuestProgressRepository
 import com.dgu.prompt.blaybus_backend.data.repository.JobQuestRepository
+import com.dgu.prompt.blaybus_backend.data.repository.UsersRepository
 import com.dgu.prompt.blaybus_backend.security.JwtUtil
 import org.springframework.stereotype.Service
+import java.util.Calendar
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 @Service
 class JobQuestService(
     private val jwtUtil: JwtUtil,
     private val jobQuestRepository: JobQuestRepository,
     private val jobQuestProgressRepository: JobQuestProgressRepository,
+    private val usersRepository: UsersRepository
 ) {
-    fun getJobQuests(authToken: String, frequency: String): List<JobQuestResponse> {
-        // Step 1: JWT에서 유저 정보 추출
-        val employeeNumber = jwtUtil.extractEmployeeNumber(authToken)
-            ?: throw IllegalArgumentException("Invalid token: missing employeeNumber")
-            val departmentId = jwtUtil.extractClaim(authToken) { it["departmentId"] as? String }
-            ?: throw IllegalArgumentException("Invalid token: departmentId is missing")
-        
-        val jobGroupId = jwtUtil.extractClaim(authToken) { it["jobGroupId"] as? Int }
-            ?: throw IllegalArgumentException("Invalid token: jobGroupId is missing")
-        
 
-        // Step 2: Frequency 검증
-        val freqType = try {
+    fun getJobQuests(employeeNumber: Int, frequency: String): List<JobQuestResponse> {
+        val user = usersRepository.findUserByEmployeeNumber(employeeNumber)
+            ?: throw IllegalArgumentException("User not found for employeeNumber: $employeeNumber")
+
+    
+        val frequencyType = try {
             FrequencyType.valueOf(frequency.uppercase())
         } catch (e: IllegalArgumentException) {
-            throw IllegalArgumentException("Invalid frequency type: $frequency")
+            throw IllegalArgumentException("Invalid frequency type: $frequency. Must be 'WEEK' or 'MONTH'")
         }
-
-        // Step 3: job_quest 조회
-        val quests = jobQuestRepository.findByJobGroupIdAndDepartmentIdAndFrequencyType(jobGroupId, departmentId, freqType)
-
-        // Step 4: 각 job_quest에 대한 progress 조회
-        return quests.map { quest ->
-            val progress = jobQuestProgressRepository.findByJobQuest_QuestIdAndUser_EmployeeNumber(quest.questId, employeeNumber)
+    
+        val currentPeriod = when (frequencyType) {
+            FrequencyType.WEEK -> getCurrentWeekOfYear()
+            FrequencyType.MONTH -> getCurrentMonthOfYear()
+        }
+    
+        val jobQuests = jobQuestRepository.findByJobGroupIdAndDepartmentIdAndFrequencyType(
+            jobGroupId = user.jobGroupId,
+            departmentId = user.departmentId,
+            frequencyType = frequencyType
+        )
+    
+        return jobQuests.map { jobQuest ->
+            val progresses = jobQuestProgressRepository.findByJobQuest_QuestId(
+                questId = jobQuest.questId
+            ).map { progress ->
+                JobQuestProgressResponse(
+                    questId = progress.jobQuest.questId,
+                    status = progress.status.name,
+                    period = progress.period,
+                    isCurrentPeriod = (progress.period == currentPeriod)
+                )
+            }
+    
             JobQuestResponse(
-                questId = quest.questId,
-                maxExpDo = quest.maxExpDo,
-                medianExpDo = quest.medianExpDo,
-                frequencyType = quest.frequencyType.name,
-                departmentId = quest.departmentId,
-                questsProgress = progress.map { JobQuestProgressResponse(it) }
+                questId = jobQuest.questId,
+                maxExpDo = jobQuest.maxExpDo,
+                medianExpDo = jobQuest.medianExpDo,
+                frequencyType = jobQuest.frequencyType.name,
+                departmentId = jobQuest.departmentId,
+                questsProgress = progresses
             )
         }
+    }
+    
+
+    private fun getCurrentWeekOfYear(): Int {
+        val calendar = Calendar.getInstance()
+        return calendar.get(Calendar.WEEK_OF_YEAR)
+    }
+
+    private fun getCurrentMonthOfYear(): Int {
+        val calendar = Calendar.getInstance()
+        return calendar.get(Calendar.MONTH) + 1 // Calendar.MONTH는 0부터 시작
     }
 }
