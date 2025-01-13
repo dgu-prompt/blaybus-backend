@@ -27,4 +27,7 @@ data class Exp(
     @Column(name = "updated_at", nullable = false)
     val updatedAt: LocalDateTime
 )
+enum class ExpType {
+    HR_FIRST, HR_SECOND, JOB_QUEST, LEADER_QUEST, PROJECT
+}
 

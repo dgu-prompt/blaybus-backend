@@ -29,6 +29,3 @@ data class Exp2(
     val updatedAt: LocalDateTime
 )
 
-enum class ExpType {
-    HR_FIRST, HR_SECOND, JOB_QUEST, LEADER_QUEST, PROJECT
-}
