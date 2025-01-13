@@ -1,9 +1,6 @@
 package com.dgu.prompt.blaybus_backend
 
-import com.dgu.prompt.blaybus_backend.googleSheetsService.LevelSheetService
-import com.dgu.prompt.blaybus_backend.googleSheetsService.PostSheetService
-import com.dgu.prompt.blaybus_backend.googleSheetsService.UsersSheetService
-import com.dgu.prompt.blaybus_backend.googleSheetsService.PRSheetService
+import com.dgu.prompt.blaybus_backend.googleSheetsService.*
 
 import org.springframework.boot.CommandLineRunner
 import org.springframework.scheduling.annotation.Scheduled
@@ -29,8 +26,8 @@ class SyncRunner(
     private val usersSheetService: UsersSheetService,
     private val levelSheetService: LevelSheetService,
     private val postSheetService: PostSheetService,
-    private val PRSheetService: PRSheetService
-
+    private val PRSheetService: PRSheetService,
+    private val leaderQuestSheetService: LeaderQuestSheetService
 
 ) : CommandLineRunner {
     override fun run(vararg args: String?) {
@@ -45,5 +42,8 @@ class SyncRunner(
 //        println("'참고. 인사평가' Sheet 동기화를 시작합니다.")
 //        PRSheetService.syncPRExpData()
 //        println("'참고. 인사평가' Sheet 동기화가 완료되었습니다.")
+        println("'참고. 레벨별 경험치' Sheet 동기화를 시작합니다.")
+        leaderQuestSheetService.syncLeaderQuestData()
+        println("'참고. 레벨별 경험치' Sheet 동기화가 완료되었습니다.")
     }
 }
