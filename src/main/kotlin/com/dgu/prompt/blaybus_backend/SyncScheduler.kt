@@ -34,8 +34,8 @@ class SyncRunner(
 //        levelSheetService.syncLevels()
 //        println("Google Sheets 동기화가 완료되었습니다.")
 
-        println("'참고. 게시판' Sheet 동기화를 시작합니다.")
-        postSheetService.syncPosts()
-        println("'참고. 게시판' Sheet 동기화가 완료되었습니다.")
+//        println("'참고. 게시판' Sheet 동기화를 시작합니다.")
+//        postSheetService.syncPosts()
+//        println("'참고. 게시판' Sheet 동기화가 완료되었습니다.")
     }
 }
