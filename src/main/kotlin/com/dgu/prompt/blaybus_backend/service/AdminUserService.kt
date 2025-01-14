@@ -6,21 +6,14 @@ import com.dgu.prompt.blaybus_backend.data.dto.UserUpdateRequest
 import com.dgu.prompt.blaybus_backend.data.entity.Users
 import com.dgu.prompt.blaybus_backend.data.repository.UsersRepository
 import org.springframework.stereotype.Service
+import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import java.util.*
 
 @Service
-class UserService(private val userRepository: UsersRepository) {
+class AdminUserService(private val userRepository: UsersRepository) {
 
-    fun createUser(adminEmployeeNumber: Int, userRequest: UserRequest) {
-        // 관리자 권한 확인
-        val adminUser = userRepository.findById(adminEmployeeNumber)
-            .orElseThrow { IllegalArgumentException("Admin not found") }
-
-        if (!adminUser.isAdmin) {
-            throw AccessDeniedException("Only admins can create accounts")
-        }
-
+    fun createUser(userRequest: UserRequest) {
         // 초기 비밀번호 설정
         val defaultPassword = "1111"
 
@@ -49,7 +42,21 @@ class UserService(private val userRepository: UsersRepository) {
                 employeeName = it.employeeName,
                 department = it.departmentId,
                 joinDate = it.joinDate.toString(),
-                level = it.levelId
+                level = it.levelId,
+                password = it.password
+            )
+        }
+    }
+
+    fun getUser(): List<UserResponse> {
+        return userRepository.findAll().map {
+            UserResponse(
+                employeeNumber = it.employeeNumber.toString(),
+                employeeName = it.employeeName,
+                department = it.departmentId,
+                joinDate = it.joinDate.toString(),
+                level = it.levelId,
+                password = it.password
             )
         }
     }
