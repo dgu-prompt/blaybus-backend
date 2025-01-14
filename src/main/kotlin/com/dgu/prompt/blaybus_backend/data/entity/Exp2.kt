@@ -4,15 +4,16 @@ import jakarta.persistence.*
 import java.time.LocalDateTime
 
 @Entity
-@Table(name = "exp")
-data class Exp(
+@Table(name = "exp2")
+data class Exp2(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY) // IDENTITY 전략을 사용하여 Auto-Increment 적용
     @Column(name = "exp_id")
     val expId: Int = 0, // 기본값 설정 필요 (JPA에서 초기화 시 사용)
 
-    @Column(name = "employee_number", nullable = false)
-    val employeeNumber: Int,
+    @ManyToOne
+    @JoinColumn(name = "employee_number", referencedColumnName = "employee_number", nullable = false)
+    val user2: Users2, // Foreign key reference to `Users`
 
     @Column(name = "exp_year", nullable = false)
     val expYear: Int,
@@ -27,7 +28,4 @@ data class Exp(
     @Column(name = "updated_at", nullable = false)
     val updatedAt: LocalDateTime
 )
-enum class ExpType {
-    HR_FIRST, HR_SECOND, JOB_QUEST, LEADER_QUEST, PROJECT
-}
 

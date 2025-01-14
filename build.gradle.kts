@@ -73,7 +73,7 @@ dependencies {
 	implementation ("io.jsonwebtoken:jjwt-impl:0.11.5")
 	implementation ("io.jsonwebtoken:jjwt-jackson:0.11.5")
 
-	testImplementation("com.google.code.gson:gson:2.8.9")
+	testImplementation("com.google.code.gson:gson:2.11.0")
 	testImplementation("com.google.api-client:google-api-client:1.34.0")
 	testImplementation("com.google.oauth-client:google-oauth-client:1.34.1")
 	testImplementation("com.google.auth:google-auth-library-oauth2-http:1.16.0")
@@ -91,4 +91,12 @@ kotlin {
 
 tasks.withType<Test> {
 	useJUnitPlatform()
+}
+
+tasks.withType<org.springframework.boot.gradle.tasks.bundling.BootJar> {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+tasks.withType<Copy> {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }

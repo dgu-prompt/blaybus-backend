@@ -13,7 +13,6 @@ class JwtUtil(
     @Value("\${jwt.expiration}") val expiration: Long
 ) {
     private val invalidatedTokens = mutableSetOf<String>()
-
     // 사용자 이름 추출
     fun extractUsername(token: String): String? {
         return extractClaim(token) { it.subject }
