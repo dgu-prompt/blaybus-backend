@@ -1,4 +1,6 @@
 package com.dgu.prompt.blaybus_backend.data.dto
 
-class UserUpdateRequest {
-}
+data class UserUpdateRequest(
+    val department: String?,
+    val level: String?
+)
