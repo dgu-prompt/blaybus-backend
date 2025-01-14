@@ -6,5 +6,6 @@ data class UserResponse(
     val department: String,
     val joinDate: String,
     val level: String,
-    val password: String
+    val password: String,
+    val jobGroupId: Int
 )

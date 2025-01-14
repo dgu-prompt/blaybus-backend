@@ -43,22 +43,25 @@ class AdminUserService(private val userRepository: UsersRepository) {
                 department = it.departmentId,
                 joinDate = it.joinDate.toString(),
                 level = it.levelId,
-                password = it.password
+                password = it.password,
+                jobGroupId = it.jobGroupId
             )
         }
     }
 
-    fun getUser(): List<UserResponse> {
-        return userRepository.findAll().map {
-            UserResponse(
-                employeeNumber = it.employeeNumber.toString(),
-                employeeName = it.employeeName,
-                department = it.departmentId,
-                joinDate = it.joinDate.toString(),
-                level = it.levelId,
-                password = it.password
-            )
-        }
+    fun getUser(employeeNumber: Int): UserResponse {
+        val user = userRepository.findById(employeeNumber)
+            .orElseThrow { IllegalArgumentException("User with employeeNumber $employeeNumber not found") }
+
+        return UserResponse(
+            employeeNumber = user.employeeNumber.toString(),
+            employeeName = user.employeeName,
+            department = user.departmentId,
+            joinDate = user.joinDate.toString(),
+            level = user.levelId,
+            password = user.password,
+            jobGroupId = user.jobGroupId
+        )
     }
 
     fun updateUser(employeeNumber: Int, userUpdateRequest: UserUpdateRequest) {

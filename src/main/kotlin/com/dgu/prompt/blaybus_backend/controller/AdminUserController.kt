@@ -47,16 +47,17 @@ class AdminUserController(
 
     @GetMapping("/{employeeNumber}")
     fun getUser(
-        @RequestHeader("Authorization") token: String
-    ): ResponseEntity<List<UserResponse>> {
-        val employeeNumber = jwtUtil.extractEmployeeNumber(token.replace("Bearer ", ""))
+        @RequestHeader("Authorization") token: String,
+        @PathVariable employeeNumber: Int
+    ): ResponseEntity<UserResponse> {
+        val adminEmployeeNumber = jwtUtil.extractEmployeeNumber(token.replace("Bearer ", ""))
             ?: throw IllegalArgumentException("Invalid token")
-        val adminUser = adminUserService.getUserByEmployeeNumber(employeeNumber)
+        val adminUser = adminUserService.getUserByEmployeeNumber(adminEmployeeNumber)
         if (!adminUser.isAdmin) {
             throw org.springframework.security.access.AccessDeniedException("Admin privileges required")
         }
 
-        return ResponseEntity.ok(adminUserService.getUser())
+        return ResponseEntity.ok(adminUserService.getUser(employeeNumber))
     }
 
     @PutMapping("/{employeeNumber}")
