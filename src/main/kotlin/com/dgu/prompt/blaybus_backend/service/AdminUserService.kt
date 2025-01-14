@@ -1,0 +1,85 @@
+package com.dgu.prompt.blaybus_backend.service;
+
+import com.dgu.prompt.blaybus_backend.data.dto.UserRequest
+import com.dgu.prompt.blaybus_backend.data.dto.UserResponse
+import com.dgu.prompt.blaybus_backend.data.dto.UserUpdateRequest
+import com.dgu.prompt.blaybus_backend.data.entity.Users
+import com.dgu.prompt.blaybus_backend.data.repository.UsersRepository
+import org.springframework.stereotype.Service
+import java.text.SimpleDateFormat
+import java.time.LocalDateTime
+import java.util.*
+
+@Service
+class AdminUserService(private val userRepository: UsersRepository) {
+
+    fun createUser(userRequest: UserRequest) {
+        // 초기 비밀번호 설정
+        val defaultPassword = "1111"
+
+        // 새로운 구성원 계정 생성
+        val newUser = Users(
+            employeeNumber = userRequest.employeeNumber.toInt(),
+            levelId = userRequest.level,
+            jobGroupId = userRequest.jobGroupId,
+            departmentId = userRequest.department,
+            employeeName = userRequest.employeeName,
+            username = userRequest.username, // 사용자 ID
+            password = defaultPassword, // 기본 패스워드
+            joinDate = SimpleDateFormat("yyyy-MM-dd").parse(userRequest.joinDate),
+            isAdmin = false, // 일반 사용자
+            characterUrl = null, // 기본값
+            updatedAt = LocalDateTime.now()
+        )
+
+        userRepository.save(newUser)
+    }
+
+    fun getAllUsers(): List<UserResponse> {
+        return userRepository.findAll().map {
+            UserResponse(
+                employeeNumber = it.employeeNumber.toString(),
+                employeeName = it.employeeName,
+                department = it.departmentId,
+                joinDate = it.joinDate.toString(),
+                level = it.levelId,
+                password = it.password,
+                jobGroupId = it.jobGroupId
+            )
+        }
+    }
+
+    fun getUser(employeeNumber: Int): UserResponse {
+        val user = userRepository.findById(employeeNumber)
+            .orElseThrow { IllegalArgumentException("User with employeeNumber $employeeNumber not found") }
+
+        return UserResponse(
+            employeeNumber = user.employeeNumber.toString(),
+            employeeName = user.employeeName,
+            department = user.departmentId,
+            joinDate = user.joinDate.toString(),
+            level = user.levelId,
+            password = user.password,
+            jobGroupId = user.jobGroupId
+        )
+    }
+
+    fun updateUser(employeeNumber: Int, userUpdateRequest: UserUpdateRequest) {
+        val user = userRepository.findById(employeeNumber)
+            .orElseThrow { IllegalArgumentException("User not found") }
+
+        userRepository.save(
+            user.copy(
+                departmentId = userUpdateRequest.department ?: user.departmentId,
+                levelId = userUpdateRequest.level ?: user.levelId,
+                updatedAt = LocalDateTime.now()
+            )
+        )
+    }
+
+    fun getUserByEmployeeNumber(employeeNumber: Int): Users {
+        return userRepository.findById(employeeNumber)
+            .orElseThrow { IllegalArgumentException("User not found") }
+    }
+}
+
