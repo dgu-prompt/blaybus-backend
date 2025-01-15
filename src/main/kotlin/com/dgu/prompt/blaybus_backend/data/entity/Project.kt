@@ -12,8 +12,11 @@ data class Project(
     @Column(name = "project_id")
     val projectId: Int,
 
-    @Column(name = "employee_number", nullable = false)
-    val employeeNumber: Int,
+//    @Column(name = "employee_number", nullable = false)
+//    val employeeNumber: Int,
+    @ManyToOne
+    @JoinColumn(name = "employee_number", referencedColumnName = "employee_number", nullable = false)
+    val user2: Users2, // Foreign key reference to `Users`
 
     @Column(name = "project_name", nullable = false)
     val projectName: String,
