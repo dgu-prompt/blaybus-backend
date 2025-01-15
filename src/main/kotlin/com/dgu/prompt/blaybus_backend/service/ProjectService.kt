@@ -10,8 +10,8 @@ class ProjectService(
     private val projectRepository: ProjectRepository,
     private val jwtUtil: JwtUtil
 ) {
-    fun getProjects(employeeNumber: Int): List<ProjectResponse> {
-        val projects = projectRepository.findByEmployeeNumber(employeeNumber)
+    fun getProjectsByEmployeeNumber(employeeNumber: Int): List<ProjectResponse> {
+        val projects = projectRepository.findByUser2_EmployeeNumber(employeeNumber)
         return projects.map { project ->
             ProjectResponse(
                 projectId = project.projectId,
