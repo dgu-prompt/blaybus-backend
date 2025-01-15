@@ -29,7 +29,8 @@ class SyncRunner(
     private val PRSheetService: PRSheetService,
     private val leaderQuestSheetService: LeaderQuestSheetService,
     private val jobQuestSheetService: JobQuestSheetService,
-    private val expSheetService: ExpSheetService
+    private val expSheetService: ExpSheetService,
+    private val projectSheetService: ProjectSheetService
 
 
 ) : CommandLineRunner {
@@ -60,5 +61,9 @@ class SyncRunner(
 //        println("' 리더부여 퀘스트 '  동기화가 완료되었습니다.")
 //        expSheetService.syncExpData()
 //        println("' expSheetService  동기화가 완료되었습니다.")
+    //
+        projectSheetService.syncProjectData()
+        println("' projectSheetService  동기화가 완료되었습니다.")
+
     }
 }
