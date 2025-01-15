@@ -7,7 +7,6 @@ import java.util.*
 
 interface Users2Repository : JpaRepository<Users2, Int> {
     fun findByEmployeeNumber(employeeNumber: Int): Users2?
-    fun findByEmployeeNumber(employeeNumber: Int?): Optional<Users2?>? // Integer로 수정
-
+    fun findOptionalByEmployeeNumber(employeeNumber: Int): Optional<Users2>
 
 }

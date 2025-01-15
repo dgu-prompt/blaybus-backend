@@ -33,6 +33,9 @@ data class LeaderQuestProgress2(
     @Column(name = "period", nullable = false)
     val period: Int,
 
+    @Column(name = "description")
+    val description: String? = null,
+
     @Enumerated(EnumType.STRING)
     @Column(name = "frequency_type", nullable = false)
     val frequencyType: FrequencyType

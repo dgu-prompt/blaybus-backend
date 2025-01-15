@@ -39,4 +39,5 @@ data class LeaderQuest2(
     @Enumerated(EnumType.STRING)
     @Column(name = "frequency_type", nullable = false)
     val frequencyType: FrequencyType
+
 )
