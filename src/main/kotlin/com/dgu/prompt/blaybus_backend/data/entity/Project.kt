@@ -1,6 +1,7 @@
 package com.dgu.prompt.blaybus_backend.data.entity
 
 import jakarta.persistence.*
+import java.time.LocalDate
 import java.time.LocalDateTime
 
 @Entity
@@ -24,5 +25,8 @@ data class Project(
     val projectExpDo: Int,
 
     @Column(name = "updated_at", nullable = false)
-    val updatedAt: LocalDateTime
+    val updatedAt: LocalDateTime,
+
+    @Column(name = "project_date", nullable = false)
+    val projectDate: LocalDate
 )

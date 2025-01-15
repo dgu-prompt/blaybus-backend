@@ -27,7 +27,7 @@ class SyncRunner(
     private val levelSheetService: LevelSheetService,
     private val postSheetService: PostSheetService,
     private val PRSheetService: PRSheetService,
-    private val leaderQuestSheetService: LeaderQuestSheetService,
+    //private val leaderQuestSheetService: LeaderQuestSheetService,
     private val jobQuestSheetService: JobQuestSheetService
 
 ) : CommandLineRunner {
