@@ -44,7 +44,7 @@ class NotificationService(
 
         val content = when (request.type) {
             NotificationType.EXP -> "${request.points} 두를 획득하셨습니다!"
-            NotificationType.POST -> "새 게시글: ${request.postTitle}이 올라왔어요!"
+            NotificationType.POST -> "새 게시글: ${request.postTitle} 글이 올라왔어요!"
             NotificationType.SUCCESS -> "${request.period} 목표를 달성하셨습니다!"
         }
 
