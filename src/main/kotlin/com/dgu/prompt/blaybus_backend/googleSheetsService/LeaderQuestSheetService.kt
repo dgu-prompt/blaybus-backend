@@ -12,13 +12,12 @@ class LeaderQuestSheetService(
     private val leaderQuest2Repository: LeaderQuest2Repository,
     private val departmentsRepository: DepartmentsRepository,
     private val leaderQuestProgress2Repository: LeaderQuestProgress2Repository,
-    private val exp2Repository: Exp2Repository,
     private val users2Repository: Users2Repository
 
 ) {
     private val SPREADSHEET_ID = "1gNAIcvtjcarYJ-L9lbzno3pQqmGjdDoItNw9P324Q7c" // Google Sheets ID
     private val LEADERQUESTRANGE = "참고. 리더부여 퀘스트!K11:S" //K11:S 열 데이터 범위
-    private val LEADERQUESTPROGRESSRANGE = "참고. 리더부여 퀘스트!B9:I" // J10부터 R 열 데이터 범위
+    private val LEADERQUESTPROGRESSRANGE = "참고. 리더부여 퀘스트!B10:I" // J10부터 R 열 데이터 범위
     private val DEPARTMENT_CELL = "참고. 리더부여 퀘스트!K8" // K8 셀
 
     fun syncLeaderQuestData() {
@@ -140,21 +139,21 @@ class LeaderQuestSheetService(
                     try {
                         // 데이터 추출
                         val employeeNumber = row[2].toString().toInt()
-                        val questTitle = row[5].toString()
-                        val statusString = row[4].toString()
+                        val questTitle = row[4].toString()
+                        val statusString = row[5].toString()
                         val description = row.getOrNull(7)?.toString() ?: ""
 
 
                         // Frequency type과 Period 설정
                         val frequencyType = when {
-                            row.getOrNull(3)?.toString()?.isNotEmpty() == true -> FrequencyType.WEEK
-                            row.getOrNull(4)?.toString()?.isNotEmpty() == true -> FrequencyType.MONTH
+                            row.getOrNull(0)?.toString()?.isNotEmpty() == true -> FrequencyType.WEEK
+                            row.getOrNull(1)?.toString()?.isNotEmpty() == true -> FrequencyType.MONTH
                             else -> throw IllegalArgumentException("Frequency type이 누락되었습니다.")
                         }
 
                         val period = when (frequencyType) {
-                            FrequencyType.WEEK -> row[3].toString().toInt()
-                            FrequencyType.MONTH -> row[4].toString().toInt()
+                            FrequencyType.WEEK -> row[0].toString().toInt()
+                            FrequencyType.MONTH -> row[1].toString().toInt()
                         }
 
                         // Status 변환
