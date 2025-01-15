@@ -2,6 +2,7 @@ package com.dgu.prompt.blaybus_backend.service
 
 import com.dgu.prompt.blaybus_backend.data.dto.PostResponse
 import com.dgu.prompt.blaybus_backend.data.repository.PostRepository
+import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
 
 @Service
@@ -20,5 +21,10 @@ class PostService(
             updatedAt = post.updatedAt,
             viewCount = post.viewCount
         )
+    }
+
+    @Transactional
+    fun deletePost(postId: Int){
+        postRepository.deleteByPostId(postId)
     }
 }

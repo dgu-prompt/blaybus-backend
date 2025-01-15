@@ -15,4 +15,10 @@ class PostController(
         val postResponse = postService.getPost(postId)
         return ResponseEntity.ok(postResponse)
     }
+    @DeleteMapping("/{post_id}")
+    fun deletePost(@PathVariable("post_id") postId: Int): ResponseEntity<String>{
+        postService.deletePost(postId)
+        return ResponseEntity.ok("Post deleted successfully")
+    }
+
 }
