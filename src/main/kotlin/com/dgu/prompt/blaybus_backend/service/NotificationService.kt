@@ -43,9 +43,9 @@ class NotificationService(
             ?: throw IllegalArgumentException("FCM token not found for user")
 
         val content = when (request.type) {
-            NotificationType.EXP -> "You gained ${request.points} experience points!"
-            NotificationType.POST -> "New post: ${request.postTitle}"
-            NotificationType.SUCCESS -> "You achieved your ${request.period} goal!"
+            NotificationType.EXP -> "${request.points} 두를 획득하셨습니다!"
+            NotificationType.POST -> "새 게시글: ${request.postTitle} 글이 올라왔어요!"
+            NotificationType.SUCCESS -> "${request.period} 목표를 달성하셨습니다!"
         }
 
         // Create and save notification entity
