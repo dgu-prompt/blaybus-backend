@@ -35,6 +35,7 @@ data class LeaderQuestProgress2(
 
     @Column(name = "description")
     val description: String? = null,
+    // add description column
 
     @Enumerated(EnumType.STRING)
     @Column(name = "frequency_type", nullable = false)
