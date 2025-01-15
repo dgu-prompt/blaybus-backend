@@ -9,5 +9,6 @@ data class UserSelfResponse(
     val level: String,
     val password: String,
     val jobGroupId: Int,
-    val characterUrl: String?
+    val characterUrl: String?,
+    val isAdmin: Boolean
 )

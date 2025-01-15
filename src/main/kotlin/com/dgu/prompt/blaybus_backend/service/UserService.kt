@@ -24,7 +24,8 @@ class UserService(
             level = user.levelId,
             password = user.password,
             jobGroupId = user.jobGroupId,
-            characterUrl = user.characterUrl
+            characterUrl = user.characterUrl,
+            isAdmin = user.isAdmin
         )
     }
 
