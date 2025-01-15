@@ -27,7 +27,8 @@ class SyncRunner(
     private val levelSheetService: LevelSheetService,
     private val postSheetService: PostSheetService,
     private val PRSheetService: PRSheetService,
-    private val leaderQuestSheetService: LeaderQuestSheetService
+    private val leaderQuestSheetService: LeaderQuestSheetService,
+    private val jobQuestSheetService: JobQuestSheetService
 
 ) : CommandLineRunner {
     override fun run(vararg args: String?) {
@@ -42,8 +43,9 @@ class SyncRunner(
 //        println("'참고. 인사평가' Sheet 동기화를 시작합니다.")
 //        PRSheetService.syncPRExpData()
 //        println("'참고. 인사평가' Sheet 동기화가 완료되었습니다.")
-        println("'참고. 레벨별 경험치' Sheet 동기화를 시작합니다.")
-        leaderQuestSheetService.syncLeaderQuestData()
-        println("'참고. 레벨별 경험치' Sheet 동기화가 완료되었습니다.")
+    //        println("'참고. 레벨별 경험치' Sheet 동기화를 시작합니다.")
+////        jobQuestSheetService.syncJobQuestData()
+////        println("'참고. 레벨별 경험치' Sheet 동기화가 완료되었습니다.")
+//
     }
 }
