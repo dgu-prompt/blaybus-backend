@@ -9,6 +9,8 @@ import com.dgu.prompt.blaybus_backend.data.repository.LeaderQuestRepository
 import com.dgu.prompt.blaybus_backend.data.repository.UsersRepository
 import org.springframework.stereotype.Service
 import java.util.Calendar
+import java.util.Date
+import java.text.SimpleDateFormat
 
 @Service
 class LeaderQuestService(
@@ -16,7 +18,10 @@ class LeaderQuestService(
     private val leaderQuestProgressRepository: LeaderQuestProgressRepository,
     private val usersRepository: UsersRepository
 ) {
+    private val mockCurrentDate: Date? = SimpleDateFormat("yyyy-MM-dd").parse("2024-12-31") // 테스트용 날짜
+
     fun getLeaderQuests(employeeNumber: Int, frequency: String): List<LeaderQuestResponse> {
+
         println("Fetching user for employeeNumber: $employeeNumber")
         val user = usersRepository.findUserByEmployeeNumber(employeeNumber)
             ?: throw IllegalArgumentException("User not found for employeeNumber: $employeeNumber")
@@ -66,11 +71,17 @@ class LeaderQuestService(
 
     private fun getCurrentWeekOfYear(): Int {
         val calendar = Calendar.getInstance()
+        if (mockCurrentDate != null) {
+            calendar.time = mockCurrentDate
+        }
         return calendar.get(Calendar.WEEK_OF_YEAR)
     }
 
     private fun getCurrentMonthOfYear(): Int {
         val calendar = Calendar.getInstance()
+        if (mockCurrentDate != null) {
+            calendar.time = mockCurrentDate
+        }
         return calendar.get(Calendar.MONTH) + 1 // Calendar.MONTH는 0부터 시작
     }
 }
