@@ -4,4 +4,10 @@ import com.dgu.prompt.blaybus_backend.data.entity.Exp2
 import org.springframework.data.jpa.repository.JpaRepository
 
 interface Exp2Repository : JpaRepository<Exp2, Int> {
+//    fun findByDepartmentIdAndQuestTitleAndFrequencyType(
+//        departmentId: String,
+//        questTitle: String,
+//        frequencyType: FrequencyType
+//    ): Optional<LeaderQuest2>
+
 }

@@ -45,7 +45,7 @@ class LevelSheetService(
                                 )
                             )
                         } catch (e: Exception) {
-                            println("데이터 변환 중 오류 발생 (Row: ${rowIndex + 1}, Col: ${colIndex + 1}): ${e.message}")
+                            println("Level 데이터 변환 중 오류 발생 (Row: ${rowIndex + 1}, Col: ${colIndex + 1}): ${e.message}")
                         }
                     }
                 }
@@ -61,10 +61,10 @@ class LevelSheetService(
                     println("저장할 새로운 레벨이 없습니다.")
                 }
             } else {
-                println("Google Sheets에서 데이터를 찾을 수 없습니다.")
+                println("Level Sheet에서 데이터를 찾을 수 없습니다.")
             }
         } catch (e: Exception) {
-            println("Google Sheets 데이터 동기화 중 오류 발생: ${e.message}")
+            println("Level Sheet 데이터 동기화 중 오류 발생: ${e.message}")
         }
     }
 }
