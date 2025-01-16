@@ -18,7 +18,7 @@ class LeaderQuestService(
     private val leaderQuestProgressRepository: LeaderQuestProgressRepository,
     private val usersRepository: UsersRepository
 ) {
-    private val mockCurrentDate: Date? = SimpleDateFormat("yyyy-MM-dd").parse("2024-12-31") // 테스트용 날짜
+    private val mockCurrentDate: Date? = SimpleDateFormat("yyyy-MM-dd").parse("2024-12-25") // 테스트용 날짜
 
     fun getLeaderQuests(employeeNumber: Int, frequency: String): List<LeaderQuestResponse> {
 
@@ -75,7 +75,23 @@ class LeaderQuestService(
         if (mockCurrentDate != null) {
             calendar.time = mockCurrentDate
         }
-        return calendar.get(Calendar.WEEK_OF_YEAR)
+
+        // 기준: 해당 해의 1월 1일
+        val yearStart = Calendar.getInstance()
+        yearStart.set(calendar.get(Calendar.YEAR), Calendar.JANUARY, 1)
+        yearStart.set(Calendar.HOUR_OF_DAY, 0)
+        yearStart.set(Calendar.MINUTE, 0)
+        yearStart.set(Calendar.SECOND, 0)
+        yearStart.set(Calendar.MILLISECOND, 0)
+
+        // 1월 1일이 속한 주의 월요일
+        while (yearStart.get(Calendar.DAY_OF_WEEK) != Calendar.MONDAY) {
+            yearStart.add(Calendar.DAY_OF_YEAR, -1)
+        }
+
+        // 현재 날짜가 몇 번째 주인지 계산
+        val diff = (calendar.timeInMillis - yearStart.timeInMillis) / (1000 * 60 * 60 * 24)
+        return (diff / 7 + 1).toInt()
     }
 
     private fun getCurrentMonthOfYear(): Int {
