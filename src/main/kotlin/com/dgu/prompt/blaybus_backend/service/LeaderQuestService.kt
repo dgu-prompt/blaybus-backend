@@ -54,7 +54,7 @@ class LeaderQuestService(
             }
 
             LeaderQuestResponse(
-                questId = leaderQuest.questId,
+                questTitle = leaderQuest.questTitle,
                 maxExpDo = leaderQuest.maxExpDo,
                 medianExpDo = leaderQuest.medianExpDo,
                 frequencyType = leaderQuest.frequencyType.name,
