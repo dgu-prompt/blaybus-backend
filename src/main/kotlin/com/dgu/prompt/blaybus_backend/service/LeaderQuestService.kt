@@ -1,4 +1,3 @@
-// LeaderQuestService
 package com.dgu.prompt.blaybus_backend.service
 
 import com.dgu.prompt.blaybus_backend.data.dto.LeaderQuestProgressResponse
@@ -25,40 +24,41 @@ class LeaderQuestService(
         val user = usersRepository.findUserByEmployeeNumber(employeeNumber)
             ?: throw IllegalArgumentException("User not found for employeeNumber: $employeeNumber")
         println("Found user: $user")
-    
+
         val frequencyType = try {
             FrequencyType.valueOf(frequency.uppercase())
         } catch (e: IllegalArgumentException) {
             throw IllegalArgumentException("Invalid frequency type: $frequency. Must be 'WEEK' or 'MONTH'")
         }
         println("Frequency Type: $frequencyType")
-    
+
         val currentPeriod = when (frequencyType) {
             FrequencyType.WEEK -> getCurrentWeekOfYear()
             FrequencyType.MONTH -> getCurrentMonthOfYear()
         }
-    
+        println("Current Period: $currentPeriod")
+
         val leaderQuests = leaderQuestRepository.findByDepartments_DepartmentIdAndFrequencyType(
             departments = user.departmentId,
             frequencyType = frequencyType
         )
         println("Leader Quests Fetched: $leaderQuests")
-    
+
         return leaderQuests.map { leaderQuest ->
             // Progress 데이터 가져오기
             val progresses = leaderQuestProgressRepository.findByLeaderQuest_QuestIdAndUser_EmployeeNumber(
                 questId = leaderQuest.questId,
                 employeeNumber = employeeNumber
             )
-    
-            // 현재 Progress 데이터에서 최대 기간 계산
-            val maxPeriod = progresses.maxOfOrNull { it.period } ?: 0
+
+            // 현재 날짜 기준으로 maxPeriod 계산
+            val maxPeriod = currentPeriod
             println("Max period for LeaderQuest ${leaderQuest.questId}: $maxPeriod")
-    
+
             // 빈 기간 포함한 Progress 데이터 생성
             val allPeriods = (1..maxPeriod)
             val progressMap = progresses.associateBy { it.period }
-    
+
             val completeProgresses = allPeriods.map { period ->
                 progressMap[period]?.let { progress ->
                     LeaderQuestProgressResponse(
@@ -74,7 +74,7 @@ class LeaderQuestService(
                     isCurrentPeriod = (period == currentPeriod)
                 )
             }
-    
+
             LeaderQuestResponse(
                 questId = leaderQuest.questId,
                 questTitle = leaderQuest.questTitle,
@@ -86,7 +86,7 @@ class LeaderQuestService(
             )
         }
     }
-    
+
     private fun getCurrentWeekOfYear(): Int {
         val calendar = Calendar.getInstance()
         if (mockCurrentDate != null) {
