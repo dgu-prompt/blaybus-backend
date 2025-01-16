@@ -5,5 +5,6 @@ data class ExpHistoryResponse(
     val employeeNumber: Int,
     val expYear: Int,
     val expDo: Int,
-    val expType: String
+    val expType: String,
+    val hrTier: String?
 )
