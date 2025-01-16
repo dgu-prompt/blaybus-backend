@@ -3,6 +3,7 @@ package com.dgu.prompt.blaybus_backend.service
 import com.dgu.prompt.blaybus_backend.data.entity.Exp
 import com.dgu.prompt.blaybus_backend.data.entity.Level
 import com.dgu.prompt.blaybus_backend.data.dto.ExpSummaryResponse
+import com.dgu.prompt.blaybus_backend.data.dto.ExpRankResponse
 import com.dgu.prompt.blaybus_backend.data.repository.ExpRepository
 import com.dgu.prompt.blaybus_backend.data.repository.LevelRepository
 import com.dgu.prompt.blaybus_backend.data.repository.UsersRepository
@@ -51,6 +52,66 @@ class ExpService(
             nextLv = nextLv
         )
     }
+
+    fun getExpRanking(authToken: String): List<ExpRankResponse> {
+        val requestingEmployeeNumber = jwtUtil.extractEmployeeNumber(authToken)
+            ?: throw IllegalArgumentException("Invalid JWT token")
+    
+        val currentYear = 2024
+        val allExpData = expRepository.findAll()
+        val yearlyExpByEmployee = allExpData.filter { it.expYear == currentYear }
+            .groupBy { it.employeeNumber }
+            .mapValues { entry -> entry.value.sumOf { it.expDo } }
+    
+        return yearlyExpByEmployee.entries
+            .sortedByDescending { it.value }
+            .mapIndexed { index, entry ->
+                val employeeNumber = entry.key
+                val totalExp = entry.value
+    
+                // 유저 정보 조회
+                val user = usersRepository.findUserByEmployeeNumber(employeeNumber)
+                val employeeName = user?.employeeName ?: "Unknown"
+                val recentLv = if (user != null) calculateRecentLevel(user.levelId, totalExp) else "Unknown"
+    
+                ExpRankResponse(
+                    employeeNumber = employeeNumber,
+                    employeeName = employeeName,
+                    totalExp = totalExp, // 2024년의 경험치만 반환
+                    recentLv = recentLv,
+                    rank = index + 1
+                )
+            }
+    }
+
+    private fun calculateRecentLevel(levelId: String, totalExp: Int): String {
+        // 유저의 현재 레벨 필드값에서 앞글자 추출 (예: F, B)
+        val userLevelGroup = levelId.substringBefore("-").substring(0, 1) // 유저의 레벨 앞글자(F, B 등)
+    
+        // 동일 그룹의 레벨 데이터 필터링
+        val levels = levelRepository.findAll()
+            .filter { it.levelId.startsWith(userLevelGroup) }
+            .sortedBy { it.requiredExpDo }
+    
+        var recentLv = "Unknown"
+    
+        for ((index, level) in levels.withIndex()) {
+            val levelExp = level.requiredExpDo ?: Long.MAX_VALUE
+            if (totalExp.toLong() < levelExp) {
+                recentLv = if (index > 0) levels[index - 1].levelId else "Unknown"
+                break
+            }
+        }
+    
+        if (recentLv == "Unknown" && levels.isNotEmpty()) {
+            recentLv = levels.first().levelId
+        }
+    
+        return recentLv
+    }
+    
+
+
 
     private fun calculateLevelsAndRequiredExp(employeeNumber: Int, totalExp: Int): Triple<String, String, Int> {
         // 유저의 현재 레벨 필드값에서 앞글자 추출 (예: F, B)
