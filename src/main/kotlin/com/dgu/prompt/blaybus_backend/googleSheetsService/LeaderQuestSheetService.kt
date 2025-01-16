@@ -233,10 +233,10 @@ class LeaderQuestSheetService(
                         }
                     }
                 } else {
-                    println("변경된 데이터가 없습니다.")
+                    println("변경된 [리더 퀘스트 진행 현황]데이터가 없습니다.")
                 }
             } else {
-                println("리더 퀘스트 진행 현황 Sheet에서 데이터를 찾을 수 없습니다.")
+                println("리더 퀘스트 진행 현황 데이터를 찾을 수 없습니다.")
             }
         } catch (e: Exception) {
             println("리더 퀘스트 진행 현황 동기화 중 오류 발생: ${e.message}")

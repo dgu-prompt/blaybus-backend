@@ -199,12 +199,12 @@ class JobQuestSheetService(
             // 데이터 저장
             if (progressListToUpdateOrInsert.isNotEmpty()) {
                 jobQuestProgressRepository.saveAll(progressListToUpdateOrInsert)
-                println("JobQuestProgress 데이터를 동기화했습니다. 업데이트된 항목 수: ${progressListToUpdateOrInsert.size}개.")
+                println("직무별 퀘스트 진행 현황 데이터를 동기화했습니다. 업데이트된 항목 수: ${progressListToUpdateOrInsert.size}개.")
             } else {
-                println("변경된 데이터가 없습니다.")
+                println("변경된 직무별 퀘스트 진행 현황 데이터가 없습니다.")
             }
         } catch (e: Exception) {
-            println("JobQuestProgress 동기화 중 오류 발생: ${e.message}")
+            println("직무별 퀘스트 진행 현황 동기화 중 오류 발생: ${e.message}")
         }
     }
 

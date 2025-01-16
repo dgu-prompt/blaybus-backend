@@ -69,17 +69,15 @@ class PostSheetService(
                 // 데이터 저장
                 if (postsToUpdate.isNotEmpty()) {
                     postRepository.saveAll(postsToUpdate)
-                    println("포스트 데이터를 동기화했습니다. 업데이트된 항목 수: ${postsToUpdate.size}개.")
+                    println("게시글 데이터를 동기화했습니다. 업데이트된 항목 수: ${postsToUpdate.size}개.")
                 } else {
                     println("변경된 데이터가 없습니다.")
                 }
             } else {
-                println("Google Sheets에서 데이터를 찾을 수 없습니다.")
-                println("참고. 게시판 Sheet에서 데이터를 찾을 수 없습니다.")
+                println("게시글 데이터를 찾을 수 없습니다.")
             }
         } catch (e: Exception) {
-            println("Google Sheets 데이터 동기화 중 오류 발생: ${e.message}")
-            println("참고. 게시판 Sheet 데이터 동기화 중 오류 발생: ${e.message}")
+            println("게시글 데이터 동기화 중 오류 발생: ${e.message}")
         }
 
         // 동기화된 항목 수 반환
