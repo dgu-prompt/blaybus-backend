@@ -93,7 +93,7 @@ class ProjectSheetService(
                     projectRepository.saveAll(projectsToUpdateOrCreate)
                     println("프로젝트 데이터를 동기화했습니다. 업데이트된 항목 수: ${projectsToUpdateOrCreate.size}개.")
                 } else {
-                    println("변경된 데이터가 없습니다.")
+                    println("변경된 프로젝트 데이터가 없습니다.")
                 }
             } else {
                 println("프로젝트 시트에서 데이터를 찾을 수 없습니다.")
