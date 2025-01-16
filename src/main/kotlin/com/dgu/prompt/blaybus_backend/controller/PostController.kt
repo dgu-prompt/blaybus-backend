@@ -36,10 +36,10 @@ class PostController(
     fun updatePost(
         @PathVariable("post_id") postId: Int,
         @RequestBody updateRequest: UpdatePostRequest
-    ): ResponseEntity<UpdatedPostResponse> {
+    ): ResponseEntity<String> {
         return try {
             val updatedPost = postService.updatePost(postId, updateRequest)
-            ResponseEntity.ok(updatedPost)
+            ResponseEntity.ok("Post updated successfully")
         } catch (e: NoSuchElementException) {
             ResponseEntity.status(HttpStatus.NOT_FOUND).body(null)
         } catch (e: IllegalArgumentException) {
