@@ -1,16 +1,15 @@
 INSERT INTO leader_quest_progress (
-    quest_progress_id, frequency_type, period, status, updated_at, quest_id, department_id, employee_number, quest_progress_date
+    quest_progress_id, frequency_type, period, status, updated_at, quest_id, department_id, employee_number
 ) VALUES
-      (1, 'MONTH', 1,'MAX', '2025-01-11 13:24:23.000000', 1, '음성 1센터',2021030101, '0000-00-00 00:00:00.000000'),
-      (2, 'MONTH', 2, 'MEDIUM', '2025-01-11 13:24:23.000000', 1, '음성 1센터',2021030101, '0000-00-00 00:00:00.000000'),
-      (3, 'MONTH', 2, 'MEDIUM', '2025-01-11 13:24:23.000000', 1, '음성 1센터',2023010101, '0000-00-00 00:00:00.000000'),
-      (4, 'MONTH', 1, 'MAX', '2025-01-11 13:24:23.000000', 1, '음성 1센터',2023010101, '0000-00-00 00:00:00.000000'),
-      (5, 'MONTH', 2, 'MEDIUM', '2025-01-11 13:24:23.000000', 1, '음성 1센터',2023010102, '0000-00-00 00:00:00.000000'),
-      (6, 'MONTH', 1, 'MAX', '2025-01-11 13:24:23.000000', 2, '음성 1센터', 2023010102, '0000-00-00 00:00:00.000000'),
-      (7, 'MONTH', 2, 'MEDIUM', '2025-01-11 13:24:23.000000', 2, '음성 1센터',2021030101, '0000-00-00 00:00:00.000000'),
-      (8, 'MONTH', 2, 'MEDIUM', '2025-01-11 13:24:23.000000', 2, '음성 1센터',2023010101, '0000-00-00 00:00:00.000000'),
-      (9, 'MONTH', 2, 'MAX', '2025-01-11 13:24:23.000000', 2, '음성 1센터',2023010102, '0000-00-00 00:00:00.000000');
-
+      (1, 'MONTH', 1,'MAX', NOW(), 1, '음성 1센터',2021030101),
+      (2, 'MONTH', 2, 'MEDIUM', NOW(), 1, '음성 1센터',2021030101),
+      (3, 'MONTH', 2, 'MEDIUM', NOW(), 1, '음성 1센터',2023010101),
+      (4, 'MONTH', 1, 'MAX', NOW(), 1, '음성 1센터',2023010101),
+      (5, 'MONTH', 2, 'MEDIUM', NOW(), 1, '음성 1센터',2023010102),
+      (6, 'MONTH', 1, 'MAX', NOW(), 2, '음성 1센터', 2023010102),
+      (7, 'MONTH', 2, 'MEDIUM', NOW(), 2, '음성 1센터',2021030101),
+      (8, 'MONTH', 2, 'MEDIUM', NOW(), 2, '음성 1센터',2023010101),
+      (9, 'MONTH', 2, 'MAX', NOW(), 2, '음성 1센터',2023010102);
 
 INSERT INTO leader_quest (
     quest_id, description, frequency_type, max_condition, max_exp_do, median_condition, median_exp_do, quest_title, updated_at, department_id
