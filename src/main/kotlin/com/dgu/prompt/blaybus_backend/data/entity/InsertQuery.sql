@@ -88,3 +88,14 @@ VALUES
     (1, 1, '음성 2센터', 'MAX', NOW(), 50, 'WEEK'),
     (1, 1, '음성 2센터', 'MAX', NOW(), 51, 'WEEK'),
     (1, 1, '음성 2센터', 'PENDING', NOW(), 52, 'WEEK');
+
+INSERT INTO post (
+    post_id,
+    created_at,
+    post_title,
+    updated_at,
+    view_count
+)
+VALUES
+    (1,NOW(),'AAA 프로젝트 신설 (경험치 500 do, 신청 마감 ~10/31)',NOW(),0),
+    (2,NOW(),'잡초이스 공고(신청 마감 ~11/20)',NOW(),0);

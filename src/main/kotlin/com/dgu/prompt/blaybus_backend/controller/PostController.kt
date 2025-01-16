@@ -2,6 +2,8 @@ package com.dgu.prompt.blaybus_backend.controller
 
 import org.springframework.http.HttpStatus
 import com.dgu.prompt.blaybus_backend.data.dto.PostResponse
+import com.dgu.prompt.blaybus_backend.data.dto.UpdatePostRequest
+import com.dgu.prompt.blaybus_backend.data.dto.UpdatedPostResponse
 import com.dgu.prompt.blaybus_backend.service.PostService
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -27,6 +29,23 @@ class PostController(
             ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: Failed to delete Post. Reason: ${e.message}")
         } catch (e: Exception) {
             ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Unexpected error occurred: ${e.message}")
+        }
+    }
+
+    @PutMapping("/{post_id}")
+    fun updatePost(
+        @PathVariable("post_id") postId: Int,
+        @RequestBody updateRequest: UpdatePostRequest
+    ): ResponseEntity<UpdatedPostResponse> {
+        return try {
+            val updatedPost = postService.updatePost(postId, updateRequest)
+            ResponseEntity.ok(updatedPost)
+        } catch (e: NoSuchElementException) {
+            ResponseEntity.status(HttpStatus.NOT_FOUND).body(null)
+        } catch (e: IllegalArgumentException) {
+            ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null)
+        } catch (e: Exception) {
+            ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null)
         }
     }
 

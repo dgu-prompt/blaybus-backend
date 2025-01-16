@@ -9,20 +9,20 @@ data class Post(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "post_id")
-    val postId: Int,
+    var postId: Int, // var로 변경
 
     @Column(name = "post_title", nullable = false)
-    val postTitle: String,
+    var postTitle: String, // var로 변경
 
     @Column(name = "content")
-    val content: String,
+    var content: String, // var로 변경
 
     @Column(name = "created_at", nullable = false)
-    val createdAt: LocalDateTime,
+    var createdAt: LocalDateTime, // var로 변경
 
     @Column(name = "updated_at")
-    val updatedAt: LocalDateTime? = null,
+    var updatedAt: LocalDateTime? = null, // var로 변경
 
     @Column(name = "view_count", nullable = false)
-    val viewCount: Int
+    var viewCount: Int // var로 변경
 )
