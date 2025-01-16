@@ -1,11 +1,12 @@
 package com.dgu.prompt.blaybus_backend.googleSheetsService
 
-import com.dgu.prompt.blaybus_backend.data.entity.FrequencyType
-import com.dgu.prompt.blaybus_backend.data.entity.JobQuest
-import com.dgu.prompt.blaybus_backend.data.entity.JobQuestProgress
-import com.dgu.prompt.blaybus_backend.data.entity.ProgressStatus
+import com.dgu.prompt.blaybus_backend.data.dto.NotificationRequest
+import com.dgu.prompt.blaybus_backend.data.entity.*
+import com.dgu.prompt.blaybus_backend.data.repository.FcmTokenRepository
 import com.dgu.prompt.blaybus_backend.data.repository.JobQuestProgressRepository
 import com.dgu.prompt.blaybus_backend.data.repository.JobQuestRepository
+import com.dgu.prompt.blaybus_backend.data.repository.UsersRepository
+import com.dgu.prompt.blaybus_backend.service.NotificationService
 import com.google.api.services.sheets.v4.Sheets
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
@@ -14,7 +15,10 @@ import java.time.LocalDateTime
 class JobQuestSheetService(
     private val sheets: Sheets,
     private val jobQuestRepository: JobQuestRepository,
-    private val jobQuestProgressRepository: JobQuestProgressRepository
+    private val jobQuestProgressRepository: JobQuestProgressRepository,
+    private val usersRepository: UsersRepository,
+    private val notificationService: NotificationService,
+    private val fcmTokenRepository: FcmTokenRepository
 
 ) {
     private val SPREADSHEET_ID = "1gNAIcvtjcarYJ-L9lbzno3pQqmGjdDoItNw9P324Q7c" // Google Sheets ID
@@ -200,6 +204,30 @@ class JobQuestSheetService(
             if (progressListToUpdateOrInsert.isNotEmpty()) {
                 jobQuestProgressRepository.saveAll(progressListToUpdateOrInsert)
                 println("직무별 퀘스트 진행 현황 데이터를 동기화했습니다. 업데이트된 항목 수: ${progressListToUpdateOrInsert.size}개.")
+                // 알림 전송
+                progressListToUpdateOrInsert.forEach { progress ->
+                    val points = when (progress.status) {
+                        ProgressStatus.MAX -> progress.jobQuest.maxExpDo
+                        ProgressStatus.MEDIUM -> progress.jobQuest.medianExpDo
+                        else -> 0
+                    }
+                    val user = usersRepository.findAUserByEmployeeNumber(2021030101)
+                    if (points > 0) {
+                        val fcmToken = user?.let { fcmTokenRepository.findByUser(it)?.fcmToken }
+                        if (fcmToken != null) {
+                            notificationService.sendNotification(
+                                NotificationRequest(
+                                    employeeNumber = 2021030101,
+                                    type = NotificationType.SUCCESS,
+                                    period = "직무 퀘스트 " + progress.frequencyType.toString() // 월/주 여부 나타냄
+                                )
+                            )
+                        }
+                    }
+                }
+            
+            
+            
             } else {
                 println("변경된 직무별 퀘스트 진행 현황 데이터가 없습니다.")
             }

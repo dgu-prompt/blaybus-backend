@@ -226,7 +226,7 @@ class LeaderQuestSheetService(
                                     NotificationRequest(
                                         employeeNumber = user.employeeNumber,
                                         type = NotificationType.SUCCESS,
-                                        period = progress.frequencyType.toString() // 월/주 여부 나타냄
+                                        period = "리더 퀘스트 " + progress.frequencyType.toString() // 월/주 여부 나타냄
                                     )
                                 )
                             }
