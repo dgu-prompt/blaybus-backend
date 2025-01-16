@@ -1,5 +1,6 @@
 package com.dgu.prompt.blaybus_backend.service
 
+import com.dgu.prompt.blaybus_backend.NotificationManager
 import com.dgu.prompt.blaybus_backend.data.dto.NotificationRequest
 import com.dgu.prompt.blaybus_backend.data.dto.PostRequest
 import com.dgu.prompt.blaybus_backend.data.entity.NotificationType
@@ -23,6 +24,8 @@ class AdminPostService(
         val adminUser = userRepository.findById(employeeNumber)
             .orElseThrow { IllegalArgumentException("User not found") }
 
+        val notificationManager = NotificationManager(userRepository, fcmTokenRepository, notificationService)
+
         if (!adminUser.isAdmin) {
             throw org.springframework.security.access.AccessDeniedException("Admin privileges required")
         }
@@ -37,20 +40,9 @@ class AdminPostService(
         )
         postRepository.save(post)
 
-        // 모든 유저에게 푸시 알림 발송
-        val allUsers = userRepository.findAll() // 모든 유저 조회
-        allUsers.forEach { user ->
-            val fcmToken = fcmTokenRepository.findByUser(user)?.fcmToken
-            if (fcmToken != null) {
-                notificationService.sendNotification(
-                    NotificationRequest(
-                        employeeNumber = user.employeeNumber,
-                        type = NotificationType.POST,
-                        postTitle = post.postTitle
-                    )
-                )
-            }
-        }
+        // 게시글 등록 시 푸시 알림 전송
+        notificationManager.sendPostNotification(post)
+
     }
         fun getUserByEmployeeNumber(employeeNumber: Int): Users {
             return userRepository.findById(employeeNumber)
