@@ -69,7 +69,6 @@ class ExpSheetService(
                             updatedAt = LocalDateTime.now()
                         )
 
-
                         val existingExp = existingExpData[employeeNumber to expType]?.firstOrNull()
                         if (existingExp != null) {
                             // 기존 데이터가 있다면 비교 후 업데이트 결정

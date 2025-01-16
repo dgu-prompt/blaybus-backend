@@ -48,8 +48,13 @@ class SyncRunner(
 //        println("'참고. 인사평가' Sheet 동기화가 완료되었습니다.")
 
     //        println("'참고. 레벨별 경험치' Sheet 동기화를 시작합니다.")
-        jobQuestSheetService.syncJobQuestData()
+//        jobQuestSheetService.syncJobQuestData()
 //      println("'참고. 직무별 퀘스트' 동기화가 완료되었습니다.")
+
+//        jobQuestSheetService.syncJobQuestProgressData()
+//      println("'참고. 직무별 퀘스트' 동기화가 완료되었습니다.")
+
+
 //        //        println("'참고. 레벨별 경험치' Sheet 동기화를 시작합니다.")
 //        leaderQuestSheetService.syncLeaderQuestData()
 //        println("' 리더부여 퀘스트 '  동기화가 완료되었습니다.")
@@ -57,10 +62,10 @@ class SyncRunner(
 //        println("' 리더부여 퀘스트 progress'  동기화가 완료되었습니다.")
 //
 
-        //        leaderQuestSheetService.syncLeaderQuestData()
-//        println("' 리더부여 퀘스트 '  동기화가 완료되었습니다.")
-        expSheetService.syncExpData()
-        println("' expSheetService  동기화가 완료되었습니다.")
+//        leaderQuestSheetService.syncLeaderQuestProgressData()
+//        println("' LeaderQuestProgressData '  동기화가 완료되었습니다.")
+//        expSheetService.syncExpData()
+//        println("' expSheetService  동기화가 완료되었습니다.")
 
 //        projectSheetService.syncProjectData()
 //        println("' projectSheetService  동기화가 완료되었습니다.")

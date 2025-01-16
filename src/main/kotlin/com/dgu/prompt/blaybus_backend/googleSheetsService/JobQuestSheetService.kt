@@ -2,6 +2,9 @@ package com.dgu.prompt.blaybus_backend.googleSheetsService
 
 import com.dgu.prompt.blaybus_backend.data.entity.FrequencyType
 import com.dgu.prompt.blaybus_backend.data.entity.JobQuest
+import com.dgu.prompt.blaybus_backend.data.entity.JobQuestProgress
+import com.dgu.prompt.blaybus_backend.data.entity.ProgressStatus
+import com.dgu.prompt.blaybus_backend.data.repository.JobQuestProgressRepository
 import com.dgu.prompt.blaybus_backend.data.repository.JobQuestRepository
 import com.google.api.services.sheets.v4.Sheets
 import org.springframework.stereotype.Service
@@ -10,11 +13,15 @@ import java.time.LocalDateTime
 @Service
 class JobQuestSheetService(
     private val sheets: Sheets,
-    private val jobQuestRepository: JobQuestRepository
+    private val jobQuestRepository: JobQuestRepository,
+    private val jobQuestProgressRepository: JobQuestProgressRepository
+
 ) {
     private val SPREADSHEET_ID = "1gNAIcvtjcarYJ-L9lbzno3pQqmGjdDoItNw9P324Q7c" // Google Sheets ID
     private val JOBQUESTRANGE = "참고. 직무별 퀘스트!B11:H11" // 데이터 범위
     private val CONDITIONS_RANGE = "참고. 직무별 퀘스트!F14:G14" // 조건 범위
+    private val JOBQUESTPROGRESSRANGE = "참고. 직무별 퀘스트!B14:D" // jobQuestProgress 데이터를 가져올 범위
+    private val RANGE_STATUS = "참고. 직무별 퀘스트!B11:C11"/// 상태값이 있는 범위
 
     fun syncJobQuestData() {
         try {
@@ -98,4 +105,108 @@ class JobQuestSheetService(
             println("참고. 직무별 퀘스트 Sheet 동기화 중 오류 발생: ${e.message}")
         }
     }
+
+    fun syncJobQuestProgressData() {
+        try {
+            val currentTime = LocalDateTime.now()
+
+            // 상태값 읽기 (B11, C11)
+            val statusResponse = sheets.spreadsheets().values().get(SPREADSHEET_ID, RANGE_STATUS).execute()
+            val statusValues = statusResponse.getValues()
+            if (statusValues.isNullOrEmpty() || statusValues.size < 1 || statusValues[0].size < 2) {
+                throw Exception("B11 또는 C11 데이터를 읽을 수 없습니다.")
+            }
+
+            val maxStatusValue = statusValues[0][0].toString().toInt()
+            val mediumStatusValue = statusValues[0][1].toString().toInt()
+
+            // 데이터 읽기 (B14:C)
+            val response = sheets.spreadsheets().values().get(SPREADSHEET_ID, JOBQUESTPROGRESSRANGE).execute()
+            val data = response.getValues()
+            if (data.isNullOrEmpty()) {
+                println("데이터가 없습니다. 동기화 중단.")
+                return
+            }
+
+            // F11과 G11 데이터를 한 번에 가져오기
+            val ranges = listOf("참고. 직무별 퀘스트!F11", "참고. 직무별 퀘스트!G11")
+            val batchGetResponse = sheets.spreadsheets().values().batchGet(SPREADSHEET_ID).setRanges(ranges).execute()
+
+            val jobGroupIdRaw = batchGetResponse.getValueRanges()[1]?.getValues()?.firstOrNull()?.firstOrNull()?.toString()
+                ?: throw Exception("F11에서 JobGroupId 데이터를 읽을 수 없습니다.")
+            val departmentId = batchGetResponse.getValueRanges()[0]?.getValues()?.firstOrNull()?.firstOrNull()?.toString()
+                ?: throw Exception("G11에서 DepartmentId 데이터를 읽을 수 없습니다.")
+
+            // jobGroupId가 숫자인지 확인
+            val jobGroupId = jobGroupIdRaw.toIntOrNull()
+                ?: throw IllegalArgumentException("JobGroupId가 숫자가 아닙니다. (값: $jobGroupIdRaw)")
+
+            // JobQuest 객체 조회
+            val jobQuest = jobQuestRepository.findByDepartmentIdAndJobGroupId(departmentId, jobGroupId)
+                ?: throw Exception("JobQuest 객체를 찾을 수 없습니다. (departmentId: $departmentId, jobGroupId: $jobGroupId)")
+
+            // 기존 데이터 로드 (QuestId, Period로 매핑)
+            val existingProgressMap = jobQuestProgressRepository.findAll().associateBy { progress ->
+                Triple(progress.jobQuest.questId, progress.period, progress.status)
+            }
+
+            val progressListToUpdateOrInsert = data.mapNotNull { row ->
+                try {
+                    // 데이터 매핑
+                    if (row.size < 2) throw IllegalArgumentException("잘못된 데이터 형식")
+                    val period = row[0].toString().toInt()
+                    val value = row[1].toString().toInt()
+
+                    // Status 설정
+                    val status = when (value) {
+                        maxStatusValue -> ProgressStatus.MAX
+                        mediumStatusValue -> ProgressStatus.MEDIUM
+                        0 -> ProgressStatus.PENDING
+                        else -> throw IllegalArgumentException("Status 변환 오류: $value")
+                    }
+
+                    // 기존 Progress 데이터 확인
+                    val existingProgress = existingProgressMap[Triple(jobQuest.questId, period, status)]
+
+                    if (existingProgress != null) {
+                        // 업데이트 조건 확인
+                        if (existingProgress.status != status) {
+                            existingProgress.copy(
+                                status = status,
+                                updatedAt = currentTime
+                            )
+                        } else {
+                            null // 변경사항 없으면 무시
+                        }
+                    } else {
+                        // 새로운 데이터 생성
+                        JobQuestProgress(
+                            questProgressId = 0, // Auto-generated by the database
+                            jobQuest = jobQuest,
+                            status = status,
+                            updatedAt = currentTime,
+                            period = period,
+                            frequencyType = jobQuest.frequencyType, // jobQuest의 frequencyType 사용
+                            description = "" // description이 없으므로 빈 문자열 처리
+                        )
+                    }
+                } catch (e: Exception) {
+                    println("Row 처리 중 오류 발생: ${e.message}")
+                    null
+                }
+            }.filterNotNull()
+
+            // 데이터 저장
+            if (progressListToUpdateOrInsert.isNotEmpty()) {
+                jobQuestProgressRepository.saveAll(progressListToUpdateOrInsert)
+                println("JobQuestProgress 데이터를 동기화했습니다. 업데이트된 항목 수: ${progressListToUpdateOrInsert.size}개.")
+            } else {
+                println("변경된 데이터가 없습니다.")
+            }
+        } catch (e: Exception) {
+            println("JobQuestProgress 동기화 중 오류 발생: ${e.message}")
+        }
+    }
+
+
 }
