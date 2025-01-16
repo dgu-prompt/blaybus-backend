@@ -37,40 +37,7 @@ class NotificationController(
         val updatedRequest = request.copy(employeeNumber = employeeNumber)
         notificationService.sendNotification(updatedRequest)
         return ResponseEntity.ok("Experience notification sent successfully")
-    }/*
-
-    @PostMapping("/experience")
-    fun sendExperienceNotification(
-        @RequestHeader("Authorization") token: String,
-        @RequestBody request: NotificationRequest
-    ): ResponseEntity<String> {
-        val employeeNumber = jwtUtil.extractEmployeeNumber(token.replace("Bearer ", ""))
-            ?: throw IllegalArgumentException("Invalid token")
-        notificationService.sendExperienceNotification(employeeNumber, request.points)
-        return ResponseEntity.ok("Experience notification sent successfully")
     }
-
-    @PostMapping("/post")
-    fun sendPostNotification(
-        @RequestHeader("Authorization") token: String,
-        @RequestBody request: NotificationRequest
-    ): ResponseEntity<String> {
-        val employeeNumber = jwtUtil.extractEmployeeNumber(token.replace("Bearer ", ""))
-            ?: throw IllegalArgumentException("Invalid token")
-        notificationService.sendPostNotification(employeeNumber, request.postTitle)
-        return ResponseEntity.ok("Post notification sent successfully")
-    }
-
-    @PostMapping("/achievement")
-    fun sendAchievementNotification(
-        @RequestHeader("Authorization") token: String,
-        @RequestBody request: NotificationRequest
-    ): ResponseEntity<String> {
-        val employeeNumber = jwtUtil.extractEmployeeNumber(token.replace("Bearer ", ""))
-            ?: throw IllegalArgumentException("Invalid token")
-        notificationService.sendAchievementNotification(employeeNumber, request.period)
-        return ResponseEntity.ok("Achievement notification sent successfully")
-    }*/
 
     // 알림 목록 조회
     @GetMapping

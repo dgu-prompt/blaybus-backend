@@ -42,13 +42,21 @@ class NotificationService(
         val fcmToken = fcmTokenRepository.findByUser(user)?.fcmToken
             ?: throw IllegalArgumentException("FCM token not found for user")
 
+        // 알림 내용 생성
         val content = when (request.type) {
             NotificationType.EXP -> "${request.points} 두를 획득하셨습니다!"
             NotificationType.POST -> "새 게시글: ${request.postTitle} 글이 올라왔어요!"
             NotificationType.SUCCESS -> "${request.period} 목표를 달성하셨습니다!"
         }
 
-        // Create and save notification entity
+        val title = if (request.title.isNotBlank()) request.title else when (request.type) {
+            NotificationType.EXP -> "포인트 획득!"
+            NotificationType.POST -> "새로운 게시글 알림"
+            NotificationType.SUCCESS -> "퀘스트 달성!"
+            else -> "알림"
+        }
+
+        // 알림 저장
         val notification = Notification(
             users = user,
             content = content,
@@ -59,79 +67,13 @@ class NotificationService(
         )
         notificationRepository.save(notification)
 
-        // Send push notification via FCM
+        // 푸시 알림 전송
         fcmService.sendNotification(
             fcmToken = fcmToken,
-            title = request.title,
-            body = content
+            title = title,  // DB 저장된 알림과 동일한 제목 사용
+            body = content   // DB 저장된 알림과 동일한 내용 사용
         )
     }
-/*
-    fun sendExperienceNotification(employeeNumber: Int, points: Int) {
-        val user = usersRepository.findById(employeeNumber)
-            .orElseThrow { IllegalArgumentException("User not found") }
-
-        val fcmToken = fcmTokenRepository.findByUser(user)?.fcmToken
-            ?: throw IllegalArgumentException("FCM token not found for user")
-
-        val content = "You have gained $points experience points!"
-        fcmService.sendNotification(fcmToken, "Experience Gained", content)
-
-        val notification = Notification(
-            notificationId = 0, // Auto-generated
-            users = user,
-            content = content,
-            type = NotificationType.EXP,
-            createdAt = LocalDateTime.now(),
-            isRead = false,
-            updatedAt = LocalDateTime.now()
-        )
-        notificationRepository.save(notification)
-    }
-
-    fun sendPostNotification(employeeNumber: Int, postTitle: String) {
-        val user = usersRepository.findById(employeeNumber)
-            .orElseThrow { IllegalArgumentException("User not found") }
-
-        val fcmToken = fcmTokenRepository.findByUser(user)?.fcmToken
-            ?: throw IllegalArgumentException("FCM token not found for user")
-
-        val content = "A new post titled '$postTitle' has been published."
-        fcmService.sendNotification(fcmToken, "New Post", content)
-
-        val notification = Notification(
-            notificationId = 0,
-            users = user,
-            content = content,
-            type = NotificationType.POST,
-            createdAt = LocalDateTime.now(),
-            isRead = false,
-            updatedAt = LocalDateTime.now()
-        )
-        notificationRepository.save(notification)
-    }
-
-    fun sendAchievementNotification(employeeNumber: Int, period: String) {
-        val user = usersRepository.findById(employeeNumber)
-            .orElseThrow { IllegalArgumentException("User not found") }
-
-        val fcmToken = fcmTokenRepository.findByUser(user)?.fcmToken
-            ?: throw IllegalArgumentException("FCM token not found for user")
-
-        val content = "Congratulations on your $period achievements!"
-        fcmService.sendNotification(fcmToken, "Achievement Unlocked", content)
-
-        val notification = Notification(
-            notificationId = 0,
-            users = user,
-            content = content,
-            type = NotificationType.SUCCESS,
-            createdAt = LocalDateTime.now(),
-            isRead = false,
-            updatedAt = LocalDateTime.now()
-        )
-        notificationRepository.save(notification)
-    }*/
 
     // 알림 목록 조회
     fun getNotificationsByEmployeeNumber(employeeNumber: Int): List<Map<String, Any>> { // Any?로 nullable 처리

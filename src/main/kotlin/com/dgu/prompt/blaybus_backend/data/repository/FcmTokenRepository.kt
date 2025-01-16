@@ -6,4 +6,5 @@ import org.springframework.data.jpa.repository.JpaRepository
 
 interface FcmTokenRepository : JpaRepository<FcmToken, Long> {
     fun findByUser(user: Users): FcmToken?
+    fun deleteByUser(user: Users): Int
 }
