@@ -44,8 +44,8 @@ class NotificationService(
 
         // 알림 내용 생성
         val content = when (request.type) {
-            NotificationType.EXP -> "${request.points} 두를 획득하셨습니다!"
-            NotificationType.POST -> "새 게시글: ${request.postTitle} 글이 올라왔어요!"
+            NotificationType.EXP -> "${request.points} do 를 획득하셨습니다!"
+            NotificationType.POST -> "새 게시글: ${request.postTitle} 새로운 글이 올라왔어요!"
             NotificationType.SUCCESS -> "${request.period} 목표를 달성하셨습니다!"
         }
 

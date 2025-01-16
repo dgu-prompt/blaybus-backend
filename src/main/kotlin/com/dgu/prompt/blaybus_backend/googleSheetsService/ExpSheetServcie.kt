@@ -1,9 +1,14 @@
 package com.dgu.prompt.blaybus_backend.googleSheetsService
 
+import com.dgu.prompt.blaybus_backend.data.dto.NotificationRequest
 import com.dgu.prompt.blaybus_backend.data.entity.Exp
 import com.dgu.prompt.blaybus_backend.data.entity.ExpType
+import com.dgu.prompt.blaybus_backend.data.entity.NotificationType
+import com.dgu.prompt.blaybus_backend.data.entity.ProgressStatus
 import com.dgu.prompt.blaybus_backend.data.repository.ExpRepository
+import com.dgu.prompt.blaybus_backend.data.repository.FcmTokenRepository
 import com.dgu.prompt.blaybus_backend.data.repository.UsersRepository
+import com.dgu.prompt.blaybus_backend.service.NotificationService
 import com.google.api.services.sheets.v4.Sheets
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
@@ -12,7 +17,9 @@ import java.time.LocalDateTime
 class ExpSheetService(
     private val sheets: Sheets,
     private val expRepository: ExpRepository,
-    private val usersRepository: UsersRepository
+    private val usersRepository: UsersRepository,
+    private val notificationService: NotificationService,
+    private val fcmTokenRepository: FcmTokenRepository
 ) {
     private val SPREADSHEET_ID = "1gNAIcvtjcarYJ-L9lbzno3pQqmGjdDoItNw9P324Q7c" // Google Sheets ID
     private val RANGE = "참고. 올해 경험치!B26:L" // 데이터 범위
@@ -54,6 +61,7 @@ class ExpSheetService(
                     }
                     val currentYear = 2024
 
+                    // 각 expType에 대해 기존 데이터와 비교하여 업데이트하거나 새로운 데이터 추가
                     listOf(
                         ExpType.HR_FIRST,
                         ExpType.HR_SECOND,
@@ -90,6 +98,24 @@ class ExpSheetService(
                 if (expToUpdateOrCreate.isNotEmpty()) {
                     expRepository.saveAll(expToUpdateOrCreate)
                     println("경험치 데이터를 동기화했습니다. 업데이트된 항목 수: ${expToUpdateOrCreate.size}개.")
+
+                    expToUpdateOrCreate.forEach { progress ->
+                        val user = usersMap[progress.employeeNumber]
+                        val points = progress.expDo // points 계산
+
+                        if (points > 0 && user != null) {
+                            val fcmToken = fcmTokenRepository.findByUser(user)?.fcmToken
+                            if (fcmToken != null) {
+                                notificationService.sendNotification(
+                                    NotificationRequest(
+                                        employeeNumber = user.employeeNumber,
+                                        type = NotificationType.EXP,
+                                        points = points
+                                    )
+                                )
+                            }
+                        }
+                    }
                 } else {
                     println("변경된 데이터가 없습니다.")
                 }

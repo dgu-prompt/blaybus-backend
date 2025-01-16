@@ -88,12 +88,12 @@ class SyncRunner(
 //        jobQuestSheetService.syncJobQuestData()
 //        println("참고. 직무별 퀘스트 동기화가 완료되었습니다.")
 //
-        jobQuestSheetService.syncJobQuestProgressData()
-        println("참고. 직무별 퀘스트 동기화가 완료되었습니다.")
+//        jobQuestSheetService.syncJobQuestProgressData()
+//        println("참고. 직무별 퀘스트 동기화가 완료되었습니다.")
 //
-//        expSheetService.syncExpData()
-//        println("expSheet 동기화가 완료되었습니다.")
-//
+        expSheetService.syncExpData()
+        println("expSheet 동기화가 완료되었습니다.")
+
 //        projectSheetService.syncProjectData()
 //        println("projectSheet 동기화가 완료되었습니다.")
     }
