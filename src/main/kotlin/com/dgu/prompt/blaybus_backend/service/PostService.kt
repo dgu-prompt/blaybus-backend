@@ -24,7 +24,17 @@ class PostService(
     }
 
     @Transactional
-    fun deletePost(postId: Int){
-        postRepository.deleteByPostId(postId)
+    fun deletePost(postId: Int) {
+        // Post 객체를 조회
+        val post = postRepository.findByPostId(postId)
+            ?: throw NoSuchElementException("Post not found with ID: $postId")
+
+        try {
+            // Post 삭제
+            postRepository.delete(post)
+        } catch (e: Exception) {
+            // 삭제 중 예외 처리
+            throw IllegalStateException("Failed to delete Post with ID: $postId. Reason: ${e.message}", e)
+        }
     }
 }
