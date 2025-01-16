@@ -5,7 +5,7 @@ import java.time.LocalDateTime
 data class PostsResponse(
     val postId: Int,
     val title: String,
-    val content: String,
+    val content: String?, // nullable로 설정 
     val createdAt: LocalDateTime,
     val updatedAt: LocalDateTime?
 )
