@@ -21,43 +21,60 @@ class LeaderQuestService(
     private val mockCurrentDate: Date? = SimpleDateFormat("yyyy-MM-dd").parse("2024-12-25") // 테스트용 날짜
 
     fun getLeaderQuests(employeeNumber: Int, frequency: String): List<LeaderQuestResponse> {
-
         println("Fetching user for employeeNumber: $employeeNumber")
         val user = usersRepository.findUserByEmployeeNumber(employeeNumber)
             ?: throw IllegalArgumentException("User not found for employeeNumber: $employeeNumber")
         println("Found user: $user")
-
+    
         val frequencyType = try {
             FrequencyType.valueOf(frequency.uppercase())
         } catch (e: IllegalArgumentException) {
             throw IllegalArgumentException("Invalid frequency type: $frequency. Must be 'WEEK' or 'MONTH'")
         }
         println("Frequency Type: $frequencyType")
-
+    
         val currentPeriod = when (frequencyType) {
             FrequencyType.WEEK -> getCurrentWeekOfYear()
             FrequencyType.MONTH -> getCurrentMonthOfYear()
         }
-
+    
         val leaderQuests = leaderQuestRepository.findByDepartments_DepartmentIdAndFrequencyType(
             departments = user.departmentId,
             frequencyType = frequencyType
         )
         println("Leader Quests Fetched: $leaderQuests")
-
+    
         return leaderQuests.map { leaderQuest ->
+            // Progress 데이터 가져오기
             val progresses = leaderQuestProgressRepository.findByLeaderQuest_QuestIdAndUser_EmployeeNumber(
                 questId = leaderQuest.questId,
                 employeeNumber = employeeNumber
-            ).map { progress ->
-                LeaderQuestProgressResponse(
-                    questId = progress.leaderQuest.questId,
-                    status = progress.status.name,
-                    period = progress.period,
-                    isCurrentPeriod = (progress.period == currentPeriod)
+            )
+    
+            // 현재 Progress 데이터에서 최대 기간 계산
+            val maxPeriod = progresses.maxOfOrNull { it.period } ?: 0
+            println("Max period for LeaderQuest ${leaderQuest.questId}: $maxPeriod")
+    
+            // 빈 기간 포함한 Progress 데이터 생성
+            val allPeriods = (1..maxPeriod)
+            val progressMap = progresses.associateBy { it.period }
+    
+            val completeProgresses = allPeriods.map { period ->
+                progressMap[period]?.let { progress ->
+                    LeaderQuestProgressResponse(
+                        questId = progress.leaderQuest.questId,
+                        status = progress.status.name,
+                        period = progress.period,
+                        isCurrentPeriod = (progress.period == currentPeriod)
+                    )
+                } ?: LeaderQuestProgressResponse(
+                    questId = leaderQuest.questId,
+                    status = "PENDING",
+                    period = period,
+                    isCurrentPeriod = (period == currentPeriod)
                 )
             }
-
+    
             LeaderQuestResponse(
                 questId = leaderQuest.questId,
                 questTitle = leaderQuest.questTitle,
@@ -65,11 +82,11 @@ class LeaderQuestService(
                 medianExpDo = leaderQuest.medianExpDo,
                 frequencyType = leaderQuest.frequencyType.name,
                 departmentId = leaderQuest.departments.departmentId,
-                questsProgress = progresses
+                questsProgress = completeProgresses
             )
         }
     }
-
+    
     private fun getCurrentWeekOfYear(): Int {
         val calendar = Calendar.getInstance()
         if (mockCurrentDate != null) {

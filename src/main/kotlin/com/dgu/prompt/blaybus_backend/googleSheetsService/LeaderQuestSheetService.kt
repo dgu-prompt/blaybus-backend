@@ -3,6 +3,7 @@ package com.dgu.prompt.blaybus_backend.googleSheetsService
 import com.dgu.prompt.blaybus_backend.data.entity.*
 import com.dgu.prompt.blaybus_backend.data.repository.*
 import com.dgu.prompt.blaybus_backend.service.NotificationService
+import com.dgu.prompt.blaybus_backend.data.dto.NotificationRequest
 import com.google.api.services.sheets.v4.Sheets
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
