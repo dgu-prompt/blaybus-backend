@@ -1,7 +1,7 @@
 package com.dgu.prompt.blaybus_backend.googleSheetsService
 
-import com.dgu.prompt.blaybus_backend.data.entity.Users2
-import com.dgu.prompt.blaybus_backend.data.repository.Users2Repository
+import com.dgu.prompt.blaybus_backend.data.entity.Users
+import com.dgu.prompt.blaybus_backend.data.repository.UsersRepository
 import com.google.api.services.sheets.v4.Sheets
 import org.springframework.stereotype.Service
 import java.time.LocalDate
@@ -13,7 +13,7 @@ import java.util.*
 @Service
 class UsersSheetService(
     private val sheets: Sheets,
-    private val users2Repository: Users2Repository
+    private val usersRepository: UsersRepository
 ) {
     //    private val SPREADSHEET_ID = "GoogleSheets" // Google Sheets ID
     private val SPREADSHEET_ID = "1gNAIcvtjcarYJ-L9lbzno3pQqmGjdDoItNw9P324Q7c" // Google Sheets ID
@@ -26,7 +26,7 @@ class UsersSheetService(
             if (!values.isNullOrEmpty()) {
                 val usersList = values.mapNotNull { row ->
                     try {
-                        Users2(
+                        Users(
                             employeeNumber = row[0].toString().toInt(),
                             employeeName = row[1].toString(),
                             joinDate = LocalDate.parse(row[2].toString(), DateTimeFormatter.ISO_LOCAL_DATE).atStartOfDay(ZoneId.systemDefault()).toInstant().let { Date.from(it) },
@@ -34,7 +34,7 @@ class UsersSheetService(
                             jobGroupId = row[4].toString().toInt(),
                             levelId = row[5].toString(),
                             username = row[6]?.toString(),
-                            password = row[7]?.toString() ?: "",
+                            password = if (row.size > 8 && row[8] != null) row[8].toString() else row.getOrNull(7)?.toString() ?: "",
                             isAdmin = false,
                             updatedAt = LocalDateTime.now()
                         )
@@ -45,11 +45,11 @@ class UsersSheetService(
                 }
 
                 // 중복 제거 및 저장
-                val existingUsers = users2Repository.findAllById(usersList.map { it.employeeNumber })
+                val existingUsers = usersRepository.findAllById(usersList.map { it.employeeNumber })
                 val newUsers = usersList.filter { user -> existingUsers.none { it.employeeNumber == user.employeeNumber } }
 
                 if (newUsers.isNotEmpty()) {
-                    users2Repository.saveAll(newUsers)
+                    usersRepository.saveAll(newUsers)
                     println("새로운 사용자 ${newUsers.size}명을 저장했습니다.")
                 } else {
                     println("저장할 새로운 사용자가 없습니다.")

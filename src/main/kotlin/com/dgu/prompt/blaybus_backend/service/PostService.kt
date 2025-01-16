@@ -46,29 +46,26 @@ class PostService(
 
     fun updatePost(postId: Int, updateRequest: UpdatePostRequest): UpdatedPostResponse {
         // 게시글을 찾습니다.
-        val post = postRepository.findById(postId).orElseThrow {
-            NoSuchElementException("Post not found with id: $postId")
-        }
+        val post = postRepository.findById(postId)
+            .orElseThrow { NoSuchElementException("Post not found with id: $postId") }
 
-        // 게시글 정보를 업데이트하여 새로운 객체를 생성합니다.
-        val updatedPost = post.copy(
-            postTitle = updateRequest.postTitle ?: post.postTitle,
-            content = updateRequest.content ?: post.content,
-            updatedAt = LocalDateTime.now(),  // 항상 값을 설정
-            viewCount = post.viewCount // viewCount 그대로 유지
+        // 게시글 정보를 업데이트 후 저장합니다.
+        val savedPost = postRepository.save(
+            post.copy(
+                postTitle = updateRequest.postTitle ?: post.postTitle,
+                content = updateRequest.content ?: post.content,
+                updatedAt = LocalDateTime.now() // 항상 값을 설정
+            )
         )
 
-        // 업데이트된 게시글을 저장합니다.
-        val savedPost = postRepository.save(updatedPost)
-
-        // 업데이트된 게시글을 응답 객체로 반환합니다.
+        // 업데이트된 게시글 정보를 반환합니다.
         return UpdatedPostResponse(
             postId = savedPost.postId,
             title = savedPost.postTitle,
             content = savedPost.content,
-            createdAt = savedPost.createdAt, // createdAt 추가
+            createdAt = savedPost.createdAt, // 생성 시간 유지
             updatedAt = savedPost.updatedAt ?: LocalDateTime.now(), // nullable 처리
-            viewCount = savedPost.viewCount
+            viewCount = savedPost.viewCount // 조회수는 업데이트하지 않음
         )
     }
 

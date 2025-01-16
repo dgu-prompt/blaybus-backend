@@ -20,4 +20,6 @@ interface UsersRepository : JpaRepository<Users, Int> {
 
     fun findOptionalByEmployeeNumber(employeeNumber: Int): Optional<Users>
 
+    fun findAUserByEmployeeNumber(employeeNumber: Int): Users?
+
 }

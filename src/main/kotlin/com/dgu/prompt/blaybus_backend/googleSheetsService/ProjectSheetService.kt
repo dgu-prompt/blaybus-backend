@@ -4,6 +4,7 @@ import com.dgu.prompt.blaybus_backend.data.entity.Project
 import com.dgu.prompt.blaybus_backend.data.repository.ProjectRepository
 import com.dgu.prompt.blaybus_backend.data.repository.UsersRepository
 import com.google.api.services.sheets.v4.Sheets
+import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -16,6 +17,8 @@ class ProjectSheetService(
 ) {
     private val SPREADSHEET_ID = "1gNAIcvtjcarYJ-L9lbzno3pQqmGjdDoItNw9P324Q7c" // Google Sheets ID
     private val RANGE = "참고. 전사 프로젝트!B8:H" // 데이터 범위
+
+    @Transactional
 
     fun syncProjectData() {
         try {

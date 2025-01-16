@@ -1,9 +1,9 @@
 package com.dgu.prompt.blaybus_backend.googleSheetsService
 
-import com.dgu.prompt.blaybus_backend.data.entity.Exp2
+import com.dgu.prompt.blaybus_backend.data.entity.Exp
 import com.dgu.prompt.blaybus_backend.data.entity.ExpType
-import com.dgu.prompt.blaybus_backend.data.repository.Exp2Repository
-import com.dgu.prompt.blaybus_backend.data.repository.Users2Repository
+import com.dgu.prompt.blaybus_backend.data.repository.ExpRepository
+import com.dgu.prompt.blaybus_backend.data.repository.UsersRepository
 import com.google.api.services.sheets.v4.Sheets
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
@@ -11,8 +11,8 @@ import java.time.LocalDateTime
 @Service
 class ExpSheetService(
     private val sheets: Sheets,
-    private val exp2Repository: Exp2Repository,
-    private val users2Repository: Users2Repository
+    private val expRepository: ExpRepository,
+    private val usersRepository: UsersRepository
 ) {
     private val SPREADSHEET_ID = "1gNAIcvtjcarYJ-L9lbzno3pQqmGjdDoItNw9P324Q7c" // Google Sheets ID
     private val RANGE = "참고. 올해 경험치!B26:L" // 데이터 범위
@@ -43,14 +43,14 @@ class ExpSheetService(
                 }
 
                 // 기존 데이터와 비교하여 업데이트할 항목 처리
-                val usersMap = users2Repository.findAll().associateBy { it.employeeNumber }
-                val existingExpData = exp2Repository.findAll().groupBy { it.user2.employeeNumber to it.expType }
+                val usersMap = usersRepository.findAll().associateBy { it.employeeNumber }
+                val existingExpData = expRepository.findAll().groupBy { it.employeeNumber to it.expType }
 
                 val expToUpdateOrCreate = expDataFromSheet.flatMap { (employeeNumber, expDoList) ->
                     val user = usersMap[employeeNumber]
                     if (user == null) {
                         println("경고: employeeNumber $employeeNumber 에 해당하는 사용자를 찾을 수 없어 데이터를 무시합니다.")
-                        return@flatMap emptyList<Exp2>() // 해당 데이터를 건너뜁니다.
+                        return@flatMap emptyList<Exp>() // 해당 데이터를 건너뜁니다.
                     }
                     val currentYear = 2024
 
@@ -61,8 +61,8 @@ class ExpSheetService(
                         ExpType.LEADER_QUEST,
                         ExpType.PROJECT
                     ).mapIndexed { index, expType ->
-                        val newExp = Exp2(
-                            user2 = user,
+                        val newExp = Exp(
+                            employeeNumber = user.employeeNumber,
                             expYear = currentYear,
                             expDo = expDoList[index],
                             expType = expType,
@@ -88,7 +88,7 @@ class ExpSheetService(
                 }
 
                 if (expToUpdateOrCreate.isNotEmpty()) {
-                    exp2Repository.saveAll(expToUpdateOrCreate)
+                    expRepository.saveAll(expToUpdateOrCreate)
                     println("경험치 데이터를 동기화했습니다. 업데이트된 항목 수: ${expToUpdateOrCreate.size}개.")
                 } else {
                     println("변경된 데이터가 없습니다.")

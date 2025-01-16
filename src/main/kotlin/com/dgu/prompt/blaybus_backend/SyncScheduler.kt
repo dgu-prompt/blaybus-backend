@@ -35,35 +35,40 @@ class SyncRunner(
 
 ) : CommandLineRunner {
     override fun run(vararg args: String?) {
-//        println("Google Sheets 동기화를 시작합니다.")
-//        levelSheetService.syncLevels()
-//        println("Google Sheets 동기화가 완료되었습니다.")
 
-//        println("'참고. 게시판' Sheet 동기화를 시작합니다.")
-//        postSheetService.syncPosts()
-//        println("'참고. 게시판' Sheet 동기화가 완료되었습니다.")
+//        usersSheetService.syncData()
+//        println("usersSheet 동기화가 완료되었습니다.")
 
-//        println("'참고. 인사평가' Sheet 동기화를 시작합니다.")
+        levelSheetService.syncLevels()
+        println("Google Sheets 동기화가 완료되었습니다.")
+
+        postSheetService.syncPosts()
+        println("'참고. 게시판' Sheet 동기화가 완료되었습니다.")
+
 //        PRSheetService.syncPRExpData()
 //        println("'참고. 인사평가' Sheet 동기화가 완료되었습니다.")
 
-    //        println("'참고. 레벨별 경험치' Sheet 동기화를 시작합니다.")
-//        jobQuestSheetService.syncJobQuestData()
-//      println("'참고. 직무별 퀘스트' 동기화가 완료되었습니다.")
 
-//        jobQuestSheetService.syncJobQuestProgressData()
-//      println("'참고. 직무별 퀘스트' 동기화가 완료되었습니다.")
 
 
 //        //        println("'참고. 레벨별 경험치' Sheet 동기화를 시작합니다.")
 //        leaderQuestSheetService.syncLeaderQuestData()
 //        println("' 리더부여 퀘스트 '  동기화가 완료되었습니다.")
-//        leaderQuestSheetService.syncLeaderQuestProgressData()
-//        println("' 리더부여 퀘스트 progress'  동기화가 완료되었습니다.")
-//
 
+
+        // 리더부여, 잡 퀘스트 시트 동기화
+
+//        leaderQuestSheetService.syncLeaderQuestData()
+//        println("' 리더부여 퀘스트 progress'  동기화가 완료되었습니다.")
 //        leaderQuestSheetService.syncLeaderQuestProgressData()
 //        println("' LeaderQuestProgressData '  동기화가 완료되었습니다.")
+//
+//        jobQuestSheetService.syncJobQuestData()
+//      println("'참고. 직무별 퀘스트' 동기화가 완료되었습니다.")
+//
+//        jobQuestSheetService.syncJobQuestProgressData()
+//      println("'참고. 직무별 퀘스트' 동기화가 완료되었습니다.")
+
 //        expSheetService.syncExpData()
 //        println("' expSheetService  동기화가 완료되었습니다.")
 

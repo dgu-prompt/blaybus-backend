@@ -5,4 +5,10 @@ import org.springframework.data.jpa.repository.JpaRepository
 
 interface ExpRepository : JpaRepository<Exp, Int> {
     fun findAllByEmployeeNumber(employeeNumber: Int): List<Exp>
+
+    //    fun findByDepartmentIdAndQuestTitleAndFrequencyType(
+//        departmentId: String,
+//        questTitle: String,
+//        frequencyType: FrequencyType
+//    ): Optional<LeaderQuest2>
 }
