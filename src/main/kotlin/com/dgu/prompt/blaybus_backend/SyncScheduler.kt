@@ -73,10 +73,10 @@ class SyncRunner(
 //        levelSheetService.syncLevels()
 //        println("levelSheet 동기화가 완료되었습니다.")
 //
-        postSheetService.syncPosts()
-        println("참고. 게시판 Sheet 동기화가 완료되었습니다.")
+//        postSheetService.syncPosts()
+//        println("참고. 게시판 Sheet 동기화가 완료되었습니다.")
 
-//        PRSheetService.syncPRExpData()
+//        //PRSheetService.syncPRExpData()
 //        println("참고. 인사평가 Sheet 동기화가 완료되었습니다.")
 //
 //        leaderQuestSheetService.syncLeaderQuestData()

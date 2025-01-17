@@ -31,6 +31,7 @@ class ExpSheetService(
             val values = response.getValues()
 
             if (!values.isNullOrEmpty()) {
+                val currentYear = 2024
                 val expDataFromSheet = values.mapNotNull { row ->
                     try {
                         val employeeNumber = row[0]?.toString()?.toInt()
@@ -49,9 +50,12 @@ class ExpSheetService(
                     }
                 }
 
-                // 기존 데이터와 비교하여 업데이트할 항목 처리
+                // 기존 데이터에서 expYear가 currentYear인 데이터만 필터링
+                val existingExpData = expRepository.findAll()
+                    .filter { it.expYear == currentYear }
+                    .groupBy { it.employeeNumber to it.expType }
+
                 val usersMap = usersRepository.findAll().associateBy { it.employeeNumber }
-                val existingExpData = expRepository.findAll().groupBy { it.employeeNumber to it.expType }
 
                 val expToUpdateOrCreate = expDataFromSheet.flatMap { (employeeNumber, expDoList) ->
                     val user = usersMap[employeeNumber]
@@ -59,7 +63,6 @@ class ExpSheetService(
                         println("경고: employeeNumber $employeeNumber 에 해당하는 사용자를 찾을 수 없어 데이터를 무시합니다.")
                         return@flatMap emptyList<Exp>() // 해당 데이터를 건너뜁니다.
                     }
-                    val currentYear = 2024
 
                     // 각 expType에 대해 기존 데이터와 비교하여 업데이트하거나 새로운 데이터 추가
                     listOf(

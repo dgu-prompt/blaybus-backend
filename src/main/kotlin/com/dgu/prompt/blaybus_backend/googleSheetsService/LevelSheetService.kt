@@ -5,7 +5,6 @@ import com.dgu.prompt.blaybus_backend.data.repository.LevelRepository
 import com.google.api.services.sheets.v4.Sheets
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
-
 @Service
 class LevelSheetService(
     private val sheets: Sheets,
@@ -29,12 +28,8 @@ class LevelSheetService(
                             val levelName = row.getOrNull(colIndex)?.toString() ?: continue
                             val requiredExp = row.getOrNull(colIndex + 1)?.toString()?.replace(",", "")?.toLongOrNull() ?: continue
 
-                            // 그룹 구하기
-                            val groupIndex = colIndex / 3
-                            val levelGroup = levelGroups[groupIndex]
-
-                            // levelId 생성
-                            val levelId = "$levelGroup-$levelName"
+                            // levelId 생성 (셀의 내용 그대로 사용)
+                            val levelId = levelName
 
                             // Level 엔티티 생성
                             levels.add(
